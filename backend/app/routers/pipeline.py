@@ -3,9 +3,16 @@ Pipeline Router - Trigger and monitor content pipelines.
 """
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
+from loguru import logger
 import inngest
 
 from app.inngest.client import inngest_client
+from app.services.topic_service import TopicService
+from app.services.script_service import ScriptService
+from app.services.tts_service import TTSService
+from app.services.video_service import VideoService
+from app.services.render_service import RenderService
+from app.services.youtube_service import YouTubeService
 
 
 router = APIRouter()
@@ -78,6 +85,9 @@ async def get_pipeline_status():
     """
     Get the current pipeline status.
     """
+    from app.config import get_settings
+    settings = get_settings()
+    
     return {
         "daily_pipeline": {
             "schedule": "0 10 * * * (10:00 AM daily)",
@@ -90,6 +100,11 @@ async def get_pipeline_status():
             "video_generation": "Google Veo 2",
             "final_render": "Creatomate",
             "upload": "YouTube API"
+        },
+        "inngest": {
+            "event_key_configured": bool(settings.inngest_event_key),
+            "event_key_length": len(settings.inngest_event_key) if settings.inngest_event_key else 0,
+            "signing_key_configured": bool(settings.inngest_signing_key),
         }
     }
 
