@@ -94,3 +94,23 @@ async def test_connection():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Connection failed: {str(e)}")
 
+
+@router.get("/debug")
+async def debug_config():
+    """
+    Debug ElevenLabs configuration (safe - no secrets exposed).
+    """
+    from app.config import get_settings
+    settings = get_settings()
+    
+    api_key = settings.elevenlabs_api_key
+    voice_id = settings.elevenlabs_voice_id
+    
+    return {
+        "api_key_set": bool(api_key),
+        "api_key_length": len(api_key) if api_key else 0,
+        "api_key_prefix": api_key[:8] + "..." if api_key and len(api_key) > 8 else "not set",
+        "voice_id_set": bool(voice_id),
+        "voice_id": voice_id if voice_id else "not set"
+    }
+
