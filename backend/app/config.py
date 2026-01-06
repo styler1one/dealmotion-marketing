@@ -36,9 +36,11 @@ class Settings(BaseSettings):
     elevenlabs_voice_id: str = Field(default="", description="Dutch voice ID")
     
     # ==========================================================================
-    # Video Generation
+    # Video Generation (Google Veo via Vertex AI)
     # ==========================================================================
-    nanobanana_api_key: str = Field(default="", description="NanoBanana API key")
+    google_cloud_project: str = Field(default="", description="Google Cloud Project ID")
+    google_cloud_location: str = Field(default="us-central1", description="Google Cloud region")
+    google_application_credentials_json: str = Field(default="", description="Service account JSON (base64 encoded)")
     
     # ==========================================================================
     # YouTube API

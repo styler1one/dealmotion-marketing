@@ -6,9 +6,11 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from app.inngest.client import inngest_client
+from app.services.video_service import VideoService
 
 
 router = APIRouter()
+video_service = VideoService()
 
 
 class VideoGenerateRequest(BaseModel):
@@ -107,4 +109,46 @@ async def list_videos(limit: int = 20, offset: int = 0):
         "limit": limit,
         "offset": offset
     }
+
+
+@router.get("/health")
+async def video_health():
+    """
+    Check if video service (Google Veo) is configured.
+    """
+    return video_service.health_check()
+
+
+class VideoTestRequest(BaseModel):
+    """Simple test request for video generation."""
+    prompt: str = "A professional business meeting in a modern office, clean corporate style, dynamic camera movement"
+
+
+@router.post("/test")
+async def test_video_generation(request: VideoTestRequest):
+    """
+    Test video generation with Google Veo 2.
+    
+    This is a direct test endpoint - not for production use.
+    """
+    try:
+        # Create a simple test script
+        test_script = {
+            "title": "Test Video",
+            "full_text": request.prompt,
+            "total_duration_seconds": 8,
+        }
+        
+        result = video_service.generate_video(
+            script=test_script,
+            style="professional B2B content"
+        )
+        
+        return {
+            "success": True,
+            "result": result
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
