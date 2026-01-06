@@ -1,8 +1,10 @@
 """
 Topic Service - Generate content topics using Claude.
+Optimized for viral YouTube Shorts (15-30 sec).
 """
 import json
 import uuid
+from datetime import datetime
 from typing import List, Optional
 from enum import Enum
 
@@ -60,36 +62,47 @@ class TopicService:
     
     def _build_system_prompt(self, language: str) -> str:
         lang_instruction = "in het Nederlands" if language == "nl" else "in English"
+        current_date = datetime.now().strftime("%d %B %Y")
+        current_year = datetime.now().year
         
-        return f"""Je bent een expert content strategist voor B2B sales content op YouTube.
-Je taak is om virale, engaging topic ideas te genereren voor YouTube Shorts over sales en AI.
+        return f"""Je bent een viral YouTube Shorts strateeg voor B2B sales content.
 
-CONTEXT:
-- Brand: {self.settings.brand_name}
-- Website: {self.settings.brand_website}
-- Tagline: {self.settings.brand_tagline}
-- Target audience: B2B sales professionals
+VANDAAG: {current_date}
+JAAR: {current_year} (altijd actuele referenties!)
+
+BRAND: {self.settings.brand_name}
+WEBSITE: {self.settings.brand_website}
+TAGLINE: {self.settings.brand_tagline}
+DOELGROEP: B2B sales professionals
+
+⚡ VIRAL SHORTS FORMULES:
+1. CONTROVERSY: "X is dood" / "Stop met Y"
+2. CURIOSITY GAP: "Dit wist je niet over..."
+3. QUICK WIN: "Doe dit NU en..."
+4. MYTH BUST: "Iedereen denkt X, maar..."
+5. SECRET: "Niemand vertelt je dit..."
 
 CONTENT TYPES:
-1. SALES_TIP - Praktische sales tips
-2. AI_NEWS - AI tools voor sales
-3. HOT_TAKE - Controversiële meningen
-4. PRODUCT_SHOWCASE - DealMotion features
+1. SALES_TIP - Één praktische tip (niet meerdere!)
+2. AI_NEWS - Één AI tool of trend ({current_year})
+3. HOT_TAKE - Controversiële mening
+4. PRODUCT_SHOWCASE - Één DealMotion feature
 
 REQUIREMENTS:
-- Shorts zijn 30-60 seconden
-- Hook moet direct aandacht pakken
+- Shorts zijn 15-25 seconden (KORT!)
+- Hook: scroll-stopper in 1-2 sec
+- ÉÉN boodschap per video
 - Content {lang_instruction}
-- Eindig met CTA naar DealMotion
+- Zachte CTA (geen harde sell)
 
-OUTPUT: JSON array met objecten:
+OUTPUT: JSON array met:
 - content_type: een van [sales_tip, ai_news, hot_take, product_showcase]
-- title: YouTube titel (max 60 chars)
-- hook: opening hook (1-2 zinnen)
-- main_points: array van 2-3 key points
-- cta: call to action
-- hashtags: array van 5 hashtags
-- estimated_duration_seconds: 30-60"""
+- title: YouTube titel (pakkend, max 50 chars)
+- hook: scroll-stopper (max 10 woorden!)
+- main_points: array van PRECIES 1 key point
+- cta: subtiele call to action
+- hashtags: 3 relevante hashtags
+- estimated_duration_seconds: 15-25"""
 
     def _build_user_prompt(self, content_type: Optional[ContentType], count: int, language: str) -> str:
         type_instruction = f"Focus op {content_type.value}" if content_type else "Mix van types"

@@ -1,8 +1,10 @@
 """
 Script Service - Generate video scripts using Claude.
+Optimized for viral YouTube Shorts (15-30 sec).
 """
 import json
 import uuid
+from datetime import datetime
 from typing import Optional
 
 import anthropic
@@ -23,7 +25,7 @@ class ScriptService:
         self,
         topic: dict,
         language: str = "nl",
-        target_duration: int = 45
+        target_duration: int = 25  # Shorts sweet spot: 15-30 sec
     ) -> dict:
         """Generate a video script from a topic."""
         logger.info(f"Generating script for: {topic.get('title', 'Unknown')}")
@@ -50,37 +52,61 @@ class ScriptService:
     
     def _build_system_prompt(self, language: str) -> str:
         lang_instruction = "in het Nederlands" if language == "nl" else "in English"
+        current_date = datetime.now().strftime("%d %B %Y")
+        current_year = datetime.now().year
         
-        return f"""Je bent een expert scriptwriter voor YouTube Shorts.
-Schrijf scripts die direct de aandacht pakken en waarde leveren.
+        return f"""Je bent een viral YouTube Shorts expert. Je schrijft KORTE, PAKKENDE scripts.
+
+VANDAAG: {current_date}
+JAAR: {current_year} (gebruik altijd actuele referenties!)
 
 BRAND: {self.settings.brand_name}
 WEBSITE: {self.settings.brand_website}
 
-SCRIPT STRUCTUUR:
-1. HOOK (0-3 sec): Pak direct aandacht
-2. CONTENT (3-50 sec): Lever waarde
-3. CTA (50-60 sec): Stuur naar actie
+⚡ SHORTS GOUDEN REGELS:
+1. MAX 25 SECONDEN (15-25 sec is sweet spot)
+2. ÉÉN BOODSCHAP per video (niet 3 punten!)
+3. HOOK in eerste 1-2 sec (scroll-stopper)
+4. DIRECT to the point - geen intro, geen "Hey guys"
+5. SNELLE zinnen - max 8-10 woorden per zin
+6. CONVERSATIONAL toon - alsof je een vriend tipt
+7. END met nieuwsgierigheid of CTA
+
+SCRIPT STRUCTUUR (max 25 sec):
+- HOOK (0-2 sec): Scroll-stopper. Provocerend/verrassend.
+- PAYLOAD (2-20 sec): ÉÉN gouden nugget. Concreet.
+- CLOSER (20-25 sec): Punch of zachte CTA.
 
 OUTPUT: JSON met:
-- title: YouTube titel
-- description: YouTube beschrijving
-- segments: array van {{type, text, duration_seconds, visual_cue}}
-- full_text: volledige tekst voor TTS
-- total_duration_seconds: totale duur
+- title: YouTube titel (pakkend, max 50 chars)
+- description: korte beschrijving
+- segments: array van {{type, text, duration_seconds}}
+- full_text: tekst voor TTS (MAX 60 woorden!)
+- total_duration_seconds: MAX 25
 
-Schrijf {lang_instruction}."""
+Schrijf {lang_instruction}. Kort. Punchy. Viral."""
 
     def _build_user_prompt(self, topic: dict, target_duration: int, language: str) -> str:
-        return f"""Schrijf script voor:
-- Titel: {topic.get('title')}
-- Hook: {topic.get('hook')}
-- Punten: {', '.join(topic.get('main_points', []))}
-- CTA: {topic.get('cta')}
-- Duur: {target_duration}s
-- Taal: {'Nederlands' if language == 'nl' else 'English'}
+        # Take only the FIRST main point - ONE message per Short!
+        main_points = topic.get('main_points', [])
+        key_message = main_points[0] if main_points else topic.get('hook', '')
+        
+        return f"""KORT SCRIPT (max {target_duration}s, max 60 woorden):
 
-Alleen JSON output."""
+TOPIC: {topic.get('title')}
+HOOK IDEE: {topic.get('hook')}
+KEY MESSAGE: {key_message}
+CLOSER: {topic.get('cta')}
+
+REGELS:
+- MAX 60 woorden totaal
+- Korte zinnen (max 10 woorden)
+- ÉÉN boodschap, niet meerdere tips
+- Geen "Hey", geen intro
+- Direct punch
+
+Taal: {'Nederlands' if language == 'nl' else 'English'}
+JSON output only."""
 
     def _parse_script(self, content: str, topic: dict) -> dict:
         content = content.strip()
