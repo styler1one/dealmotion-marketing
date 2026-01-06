@@ -127,6 +127,38 @@ async def video_debug():
     return video_service.debug_credentials()
 
 
+@router.get("/models")
+async def list_video_models():
+    """
+    List available video generation models.
+    """
+    try:
+        from google import genai
+        from app.config import get_settings
+        
+        settings = get_settings()
+        client = genai.Client(api_key=settings.google_gemini_api_key)
+        
+        # List all models
+        models = []
+        for model in client.models.list():
+            model_info = {
+                "name": model.name,
+                "display_name": getattr(model, 'display_name', ''),
+                "description": getattr(model, 'description', '')[:100] if hasattr(model, 'description') else '',
+            }
+            # Filter for video-related models
+            if 'veo' in model.name.lower() or 'video' in model.name.lower():
+                models.append(model_info)
+        
+        return {
+            "video_models": models,
+            "total_found": len(models)
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
+
 class VideoTestRequest(BaseModel):
     """Simple test request for video generation."""
     prompt: str = "A professional business meeting in a modern office, clean corporate style, dynamic camera movement"
