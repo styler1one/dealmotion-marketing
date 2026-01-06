@@ -250,10 +250,7 @@ async def upload_to_youtube_fn(
     trigger=inngest.TriggerEvent(event="marketing/test.full-pipeline"),
     retries=0,
 )
-async def test_full_pipeline_fn(
-    ctx: inngest.Context,
-    step: inngest.Step,
-) -> dict:
+async def test_full_pipeline_fn(ctx: inngest.Context, step: inngest.Step) -> dict:
     """
     Test the complete pipeline with a sample topic.
     
