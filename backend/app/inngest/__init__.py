@@ -4,7 +4,7 @@ from .functions import (
     daily_content_pipeline,
     generate_video_fn,
     upload_to_youtube_fn,
-    test_pipeline_fn,
+    test_full_pipeline_fn,
 )
 
 __all__ = [
@@ -12,6 +12,6 @@ __all__ = [
     "daily_content_pipeline",
     "generate_video_fn", 
     "upload_to_youtube_fn",
-    "test_pipeline_fn",
+    "test_full_pipeline_fn",
 ]
 
