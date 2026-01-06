@@ -18,8 +18,8 @@
 
 ## 🎉 ALLES WERKT!
 
-| Service | Status | Test URL |
-|---------|--------|----------|
+| Service | Status | URL |
+|---------|--------|-----|
 | **Frontend** | ✅ Live | https://studio.dealmotion.ai |
 | **Backend API** | ✅ Live | https://apistudio.dealmotion.ai |
 | **ElevenLabs TTS** | ✅ Werkend | `/api/tts/generate` |
