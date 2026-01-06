@@ -119,6 +119,14 @@ async def video_health():
     return video_service.health_check()
 
 
+@router.get("/debug")
+async def video_debug():
+    """
+    Debug credentials setup.
+    """
+    return video_service.debug_credentials()
+
+
 class VideoTestRequest(BaseModel):
     """Simple test request for video generation."""
     prompt: str = "A professional business meeting in a modern office, clean corporate style, dynamic camera movement"

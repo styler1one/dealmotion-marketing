@@ -20,46 +20,57 @@ class VideoService:
     def __init__(self):
         self.settings = get_settings()
         self.storage = StorageService()
+        self._creds_file_path = None
         self._setup_credentials()
     
     def _setup_credentials(self):
         """Setup Google Cloud credentials from environment."""
-        creds_json = self.settings.google_application_credentials_json
+        creds_json_b64 = self.settings.google_application_credentials_json
         
-        if creds_json:
+        if creds_json_b64:
             try:
-                # Decode base64 credentials and write to temp file
-                creds_data = base64.b64decode(creds_json)
-                self.creds_path = tempfile.NamedTemporaryFile(
-                    mode='w', 
-                    suffix='.json', 
-                    delete=False
-                )
-                self.creds_path.write(creds_data.decode('utf-8'))
-                self.creds_path.close()
+                # Decode base64 credentials
+                creds_data = base64.b64decode(creds_json_b64)
+                creds_json = creds_data.decode('utf-8')
+                
+                # Validate it's valid JSON
+                json.loads(creds_json)
+                
+                # Write to temp file
+                fd, temp_path = tempfile.mkstemp(suffix='.json', prefix='gcp_creds_')
+                with os.fdopen(fd, 'w') as f:
+                    f.write(creds_json)
+                
+                self._creds_file_path = temp_path
                 
                 # Set environment variable for Google SDK
-                os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = self.creds_path.name
-                logger.info("Google Cloud credentials configured")
+                os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = temp_path
+                logger.info(f"Google Cloud credentials configured at: {temp_path}")
             except Exception as e:
-                logger.warning(f"Failed to setup Google credentials: {e}")
-                self.creds_path = None
+                logger.error(f"Failed to setup Google credentials: {e}")
+                self._creds_file_path = None
         else:
-            self.creds_path = None
-            logger.warning("Google Cloud credentials not configured")
+            self._creds_file_path = None
+            logger.warning("Google Cloud credentials not configured (no base64 JSON provided)")
     
     def _get_client(self):
-        """Get Google GenAI client."""
+        """Get Google GenAI client for Vertex AI."""
         try:
             from google import genai
             
-            # Initialize client for Vertex AI (using service account credentials)
+            logger.info(f"Creating GenAI client - project: {self.settings.google_cloud_project}, location: {self.settings.google_cloud_location}")
+            logger.info(f"GOOGLE_APPLICATION_CREDENTIALS set to: {os.environ.get('GOOGLE_APPLICATION_CREDENTIALS', 'NOT SET')}")
+            
+            # Initialize client for Vertex AI (using service account credentials from env)
             client = genai.Client(
                 vertexai=True,
                 project=self.settings.google_cloud_project,
                 location=self.settings.google_cloud_location,
             )
+            
+            logger.info("GenAI client created successfully")
             return client
+            
         except Exception as e:
             logger.error(f"Failed to create GenAI client: {e}")
             raise
@@ -84,6 +95,9 @@ class VideoService:
         if not self.settings.google_cloud_project:
             raise ValueError("Google Cloud project not configured")
         
+        if not self._creds_file_path:
+            raise ValueError("Google Cloud credentials not configured")
+        
         title = script.get('title', 'Unknown')
         logger.info(f"🎬 Generating video: {title}")
         
@@ -99,6 +113,7 @@ class VideoService:
             
             # Start video generation with Veo 2
             logger.info("Starting Veo 2 video generation...")
+            logger.info(f"Prompt: {prompt[:200]}...")
             
             operation = client.models.generate_videos(
                 model="veo-2.0-generate-001",  # Veo 2 model
@@ -162,8 +177,8 @@ class VideoService:
             else:
                 raise Exception("No video generated in response")
                 
-        except ImportError:
-            raise Exception("Google GenAI library not installed. Run: pip install google-genai")
+        except ImportError as e:
+            raise Exception(f"Google GenAI library not installed: {e}. Run: pip install google-genai")
         except Exception as e:
             logger.error(f"Video generation failed: {e}")
             raise
@@ -232,10 +247,41 @@ Visual style:
     
     def health_check(self) -> dict:
         """Check if video service is properly configured."""
+        creds_env = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS', '')
+        creds_exists = os.path.exists(creds_env) if creds_env else False
+        
         return {
             "service": "Google Veo 2",
             "project_configured": bool(self.settings.google_cloud_project),
             "project_id": self.settings.google_cloud_project or "not set",
             "location": self.settings.google_cloud_location,
-            "credentials_configured": self.creds_path is not None,
+            "credentials_file_path": self._creds_file_path,
+            "credentials_env_var": creds_env or "not set",
+            "credentials_file_exists": creds_exists,
         }
+    
+    def debug_credentials(self) -> dict:
+        """Debug endpoint to check credentials setup."""
+        creds_b64 = self.settings.google_application_credentials_json
+        creds_env = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS', '')
+        
+        result = {
+            "has_base64_creds": bool(creds_b64),
+            "base64_length": len(creds_b64) if creds_b64 else 0,
+            "creds_file_path": self._creds_file_path,
+            "creds_env_var": creds_env,
+            "creds_file_exists": os.path.exists(creds_env) if creds_env else False,
+        }
+        
+        # Try to read and validate the credentials file
+        if creds_env and os.path.exists(creds_env):
+            try:
+                with open(creds_env, 'r') as f:
+                    creds_content = json.load(f)
+                result["creds_type"] = creds_content.get("type", "unknown")
+                result["creds_project"] = creds_content.get("project_id", "unknown")
+                result["creds_client_email"] = creds_content.get("client_email", "unknown")[:50] + "..."
+            except Exception as e:
+                result["creds_read_error"] = str(e)
+        
+        return result
