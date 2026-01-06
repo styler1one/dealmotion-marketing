@@ -136,7 +136,7 @@ class RenderService:
                 json=payload,
             )
             
-            if response.status_code not in [200, 201]:
+            if response.status_code not in [200, 201, 202]:
                 raise Exception(f"Creatomate API error: {response.status_code} - {response.text}")
             
             # Response is a list with one render
