@@ -44,6 +44,12 @@ class Settings(BaseSettings):
     google_application_credentials_json: str = Field(default="", description="Service account JSON (base64 encoded, optional)")
     
     # ==========================================================================
+    # Video Rendering (Creatomate - Final video with captions)
+    # ==========================================================================
+    creatomate_api_key: str = Field(default="", description="Creatomate API key")
+    creatomate_template_id: str = Field(default="", description="Creatomate template ID for Shorts")
+    
+    # ==========================================================================
     # YouTube API
     # ==========================================================================
     youtube_client_id: str = Field(default="", description="Google OAuth Client ID")
