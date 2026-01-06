@@ -159,6 +159,13 @@ Na het lezen:
 - [x] Inngest functions for automated pipeline
 - [x] Database schema (Supabase)
 - [x] API endpoints (topics, scripts, videos, youtube)
+- [x] Frontend Next.js 14 dashboard
+- [x] **Full cloud deployment**
+  - [x] GitHub repos (code + docs)
+  - [x] Vercel (frontend) - `studio.dealmotion.ai`
+  - [x] Railway (backend) - live
+  - [x] Supabase (database) - schema deployed
+  - [x] Inngest (workflows) - 3 functions synced
 
 ---
 
@@ -172,19 +179,21 @@ Na het lezen:
 - ✅ Database schema met 6 tabellen
 - ✅ Docs repo opgezet (dealmotion-marketing-docs)
 - ✅ ChatGPT review verwerkt (guardrails, QC gates, SEO agent)
-- ✅ **Frontend Next.js 14 app opgezet**
-  - Dashboard met pipeline status
-  - Quick stats components
-  - Content mix visualisatie
-  - Pipeline page
+- ✅ Frontend Next.js 14 app opgezet
+- ✅ **Cloud Infrastructure LIVE:**
+  - GitHub: `styler1one/dealmotion-marketing` (public)
+  - GitHub: `styler1one/dealmotion-marketing-docs` (private)
+  - Frontend: `studio.dealmotion.ai` (Vercel)
+  - Backend: `dealmotion-marketing-production.up.railway.app` (Railway)
+  - Database: Supabase (schema deployed)
+  - Workflows: Inngest (3 functions synced)
 
-**Volgende stappen:**
-1. ~~Frontend opzetten (Next.js)~~ ✅
-2. `npm install` en lokale test
-3. Railway deployment configureren
-4. Supabase project aanmaken
-5. Inngest account koppelen
-6. API keys configureren
+**Volgende stappen (Phase 2: Core Pipeline):**
+1. [ ] Topic generation werkend maken
+2. [ ] Script generation implementeren
+3. [ ] TTS integration (ElevenLabs)
+4. [ ] Video generation (NanoBanana)
+5. [ ] YouTube upload (OAuth)
 
 ---
 
