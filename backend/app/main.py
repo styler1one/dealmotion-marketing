@@ -4,32 +4,73 @@ DealMotion Marketing Engine - FastAPI Backend
 Cloud-based automated content generation for YouTube.
 """
 import os
+import sys
+import traceback
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-import inngest
-from inngest.fast_api import serve
+print("🔍 Starting imports...", flush=True)
 
-from app.config import get_settings
-from app.routers import topics, scripts, videos, youtube, tts, render, pipeline
-from app.inngest.client import inngest_client
-from app.inngest.functions import (
-    daily_content_pipeline,
-    generate_video_fn,
-    upload_to_youtube_fn,
-    test_full_pipeline_fn,
-)
+try:
+    from fastapi import FastAPI
+    print("✅ FastAPI imported", flush=True)
+    
+    from fastapi.middleware.cors import CORSMiddleware
+    print("✅ CORS imported", flush=True)
+    
+    import inngest
+    from inngest.fast_api import serve
+    print("✅ Inngest imported", flush=True)
+    
+    from app.config import get_settings
+    print("✅ Config imported", flush=True)
+    
+    # Import routers one by one for debugging
+    from app.routers import topics
+    print("✅ topics router imported", flush=True)
+    
+    from app.routers import scripts
+    print("✅ scripts router imported", flush=True)
+    
+    from app.routers import videos
+    print("✅ videos router imported", flush=True)
+    
+    from app.routers import youtube
+    print("✅ youtube router imported", flush=True)
+    
+    from app.routers import tts
+    print("✅ tts router imported", flush=True)
+    
+    from app.routers import render
+    print("✅ render router imported", flush=True)
+    
+    from app.routers import pipeline
+    print("✅ pipeline router imported", flush=True)
+    
+    from app.inngest.client import inngest_client
+    print("✅ Inngest client imported", flush=True)
+    
+    from app.inngest.functions import (
+        daily_content_pipeline,
+        generate_video_fn,
+        upload_to_youtube_fn,
+        test_full_pipeline_fn,
+    )
+    print("✅ Inngest functions imported", flush=True)
+
+except Exception as e:
+    print(f"❌ Import error: {e}", flush=True)
+    traceback.print_exc()
+    sys.exit(1)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan handler."""
     # Startup
-    print("🎬 DealMotion Marketing Engine starting...")
+    print("🎬 DealMotion Marketing Engine starting...", flush=True)
     yield
     # Shutdown
-    print("👋 Shutting down...")
+    print("👋 Shutting down...", flush=True)
 
 
 # Create FastAPI app
@@ -63,6 +104,8 @@ app.include_router(tts.router, prefix="/api/tts", tags=["TTS"])
 app.include_router(render.router, prefix="/api/render", tags=["Render"])
 app.include_router(pipeline.router, prefix="/api/pipeline", tags=["Pipeline"])
 
+print("✅ All routers registered", flush=True)
+
 # Inngest endpoint
 serve(
     app,
@@ -74,6 +117,8 @@ serve(
         test_full_pipeline_fn,
     ],
 )
+
+print("✅ Inngest serve registered", flush=True)
 
 
 @app.get("/")
@@ -95,3 +140,4 @@ async def health():
         "database": "connected"
     }
 
+print("✅ App fully initialized", flush=True)
