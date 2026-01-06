@@ -51,19 +51,18 @@ class TTSService:
             response = client.post(url, headers=headers, json=payload)
             
             if response.status_code != 200:
-                # Log detailed error
                 error_detail = response.text
                 logger.error(f"ElevenLabs error {response.status_code}: {error_detail}")
                 raise Exception(f"ElevenLabs error: {response.status_code} - {error_detail}")
             
-            # TODO: Upload to Supabase storage and return URL
             audio_bytes = response.content
-            
-            # For now, return a placeholder URL
-            # In production, upload to storage and return actual URL
-            audio_url = f"https://storage.example.com/audio/{hash(text)}.mp3"
-            
             logger.info(f"Audio generated: {len(audio_bytes)} bytes")
+            
+            # Upload to Supabase Storage
+            from app.services.storage_service import StorageService
+            storage = StorageService()
+            audio_url = storage.upload_audio(audio_bytes)
+            
             return audio_url
     
     def get_voices(self) -> list:
