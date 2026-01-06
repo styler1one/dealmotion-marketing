@@ -140,23 +140,26 @@ async def list_video_models():
         client = genai.Client(api_key=settings.google_gemini_api_key)
         
         # List all models
-        models = []
+        all_models = []
+        video_models = []
+        
         for model in client.models.list():
-            model_info = {
-                "name": model.name,
-                "display_name": getattr(model, 'display_name', ''),
-                "description": getattr(model, 'description', '')[:100] if hasattr(model, 'description') else '',
-            }
+            name = getattr(model, 'name', str(model))
+            model_info = {"name": name}
+            all_models.append(name)
+            
             # Filter for video-related models
-            if 'veo' in model.name.lower() or 'video' in model.name.lower():
-                models.append(model_info)
+            if 'veo' in name.lower() or 'video' in name.lower() or 'imagen' in name.lower():
+                video_models.append(model_info)
         
         return {
-            "video_models": models,
-            "total_found": len(models)
+            "video_models": video_models,
+            "all_models": all_models[:50],  # First 50 models
+            "total_models": len(all_models)
         }
     except Exception as e:
-        return {"error": str(e)}
+        import traceback
+        return {"error": str(e), "traceback": traceback.format_exc()}
 
 
 class VideoTestRequest(BaseModel):
