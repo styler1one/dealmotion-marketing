@@ -36,10 +36,10 @@ async def trigger_test_pipeline():
     try:
         # Send event to trigger the test pipeline
         result = await inngest_client.send(
-            inngest.Event(
+            [inngest.Event(
                 name="marketing/test.full-pipeline",
-                data={}
-            )
+                data={"source": "api_trigger"}
+            )]
         )
         
         return {
@@ -49,7 +49,9 @@ async def trigger_test_pipeline():
         }
         
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        import traceback
+        error_detail = f"{str(e)}\n{traceback.format_exc()}"
+        raise HTTPException(status_code=500, detail=error_detail)
 
 
 @router.post("/trigger-daily")
