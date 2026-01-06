@@ -57,7 +57,10 @@ class TTSService:
             response = client.post(url, headers=headers, json=payload)
             
             if response.status_code != 200:
-                raise Exception(f"ElevenLabs error: {response.status_code}")
+                # Log detailed error
+                error_detail = response.text
+                logger.error(f"ElevenLabs error {response.status_code}: {error_detail}")
+                raise Exception(f"ElevenLabs error: {response.status_code} - {error_detail}")
             
             # TODO: Upload to Supabase storage and return URL
             audio_bytes = response.content
