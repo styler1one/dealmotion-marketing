@@ -8,6 +8,8 @@ COMPLETE PIPELINE:
 4. Background Video (Google Veo 2)
 5. Final Render with Captions (Creatomate)
 6. YouTube Upload
+
+NOTE: Using Inngest SDK v0.5+ signature where step is accessed via ctx.step
 """
 import inngest
 from datetime import datetime
@@ -31,15 +33,13 @@ from app.services.youtube_service import YouTubeService
     trigger=inngest.TriggerCron(cron="0 10 * * *"),  # 10:00 AM daily
     retries=2,
 )
-async def daily_content_pipeline(
-    ctx: inngest.Context,
-    step: inngest.Step,
-) -> dict:
+async def daily_content_pipeline(ctx: inngest.Context) -> dict:
     """
     Daily automated content generation pipeline.
     
     Generates and publishes configured number of shorts per day.
     """
+    step = ctx.step
     settings = get_settings()
     results = {
         "date": datetime.now().isoformat(),
@@ -108,10 +108,7 @@ async def daily_content_pipeline(
     trigger=inngest.TriggerEvent(event="marketing/video.generate"),
     retries=2,
 )
-async def generate_video_fn(
-    ctx: inngest.Context,
-    step: inngest.Step,
-) -> dict:
+async def generate_video_fn(ctx: inngest.Context) -> dict:
     """
     Complete video generation pipeline:
     
@@ -120,6 +117,7 @@ async def generate_video_fn(
     3. Render final video with captions (Creatomate)
     4. Upload to YouTube
     """
+    step = ctx.step
     data = ctx.event.data
     script = data.get("script")
     topic = data.get("topic")
@@ -214,11 +212,9 @@ async def generate_video_fn(
     trigger=inngest.TriggerEvent(event="marketing/youtube.upload"),
     retries=2,
 )
-async def upload_to_youtube_fn(
-    ctx: inngest.Context,
-    step: inngest.Step,
-) -> dict:
+async def upload_to_youtube_fn(ctx: inngest.Context) -> dict:
     """Upload a video to YouTube."""
+    step = ctx.step
     data = ctx.event.data
     
     logger.info(f"📺 Uploading to YouTube: {data.get('title')}")
@@ -250,13 +246,14 @@ async def upload_to_youtube_fn(
     trigger=inngest.TriggerEvent(event="marketing/test.full-pipeline"),
     retries=0,
 )
-async def test_full_pipeline_fn(ctx: inngest.Context, step: inngest.Step) -> dict:
+async def test_full_pipeline_fn(ctx: inngest.Context) -> dict:
     """
     Test the complete pipeline with a sample topic.
     
     Trigger via Inngest dashboard or API:
     POST /api/inngest with event: marketing/test.full-pipeline
     """
+    step = ctx.step
     logger.info("🧪 === Starting Full Pipeline Test ===")
     
     settings = get_settings()
