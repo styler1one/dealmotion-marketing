@@ -109,21 +109,25 @@ class VideoService:
             if operation.result and operation.result.generated_videos:
                 video = operation.result.generated_videos[0]
                 
-                # Download video to temp file
+                # Download video
                 video_id = str(uuid.uuid4())
-                temp_path = f"/tmp/{video_id}.mp4"
                 
-                # Save video locally first
+                logger.info("Downloading generated video...")
                 client.files.download(file=video.video)
+                
+                # Save to temp file first
+                temp_path = f"/tmp/{video_id}.mp4"
                 video.video.save(temp_path)
                 
+                # Read video bytes
+                with open(temp_path, 'rb') as f:
+                    video_bytes = f.read()
+                
                 # Upload to Supabase Storage
-                logger.info("Uploading video to Supabase Storage...")
-                video_url = self.storage.upload_file(
-                    bucket="media",
-                    file_path=temp_path,
-                    destination_path=f"videos/{video_id}.mp4",
-                    content_type="video/mp4"
+                logger.info(f"Uploading video to Supabase Storage ({len(video_bytes)} bytes)...")
+                video_url = self.storage.upload_video(
+                    video_bytes=video_bytes,
+                    filename=f"videos/{video_id}.mp4"
                 )
                 
                 # Clean up temp file
