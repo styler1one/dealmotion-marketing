@@ -81,7 +81,7 @@ class VideoService:
             logger.info(f"Prompt: {prompt[:200]}...")
             
             operation = client.models.generate_videos(
-                model="veo-2.0-generate-preview",  # Veo 2 preview model
+                model="veo-2.0-generate-001",  # Veo 2 model
                 prompt=prompt,
                 config=types.GenerateVideosConfig(
                     aspect_ratio="9:16",  # Vertical for Shorts
