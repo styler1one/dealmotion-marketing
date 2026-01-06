@@ -89,13 +89,24 @@ async def get_channel_info():
     """
     Get connected YouTube channel info.
     """
-    # TODO: Implement
-    return {
-        "connected": False,
-        "channel_id": None,
-        "channel_name": None,
-        "subscribers": None
-    }
+    from app.services.youtube_service import YouTubeService
+    
+    try:
+        service = YouTubeService()
+        return service.test_connection()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/health")
+async def youtube_health():
+    """
+    Check if YouTube service is configured.
+    """
+    from app.services.youtube_service import YouTubeService
+    
+    service = YouTubeService()
+    return service.health_check()
 
 
 @router.post("/connect")
