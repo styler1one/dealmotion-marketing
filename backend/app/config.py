@@ -36,11 +36,12 @@ class Settings(BaseSettings):
     elevenlabs_voice_id: str = Field(default="", description="Dutch voice ID")
     
     # ==========================================================================
-    # Video Generation (Google Veo via Vertex AI)
+    # Video Generation (Google Veo via Gemini API)
     # ==========================================================================
-    google_cloud_project: str = Field(default="", description="Google Cloud Project ID")
+    google_gemini_api_key: str = Field(default="", description="Gemini API key for Veo video generation")
+    google_cloud_project: str = Field(default="", description="Google Cloud Project ID (optional)")
     google_cloud_location: str = Field(default="us-central1", description="Google Cloud region")
-    google_application_credentials_json: str = Field(default="", description="Service account JSON (base64 encoded)")
+    google_application_credentials_json: str = Field(default="", description="Service account JSON (base64 encoded, optional)")
     
     # ==========================================================================
     # YouTube API
