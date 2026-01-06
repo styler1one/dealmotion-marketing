@@ -1,4 +1,3 @@
 # API Routers
-from . import topics, scripts, videos, youtube, tts, render, pipeline
-
-__all__ = ["topics", "scripts", "videos", "youtube", "tts", "render", "pipeline"]
+# Note: modules are imported directly in main.py
+__all__ = []
