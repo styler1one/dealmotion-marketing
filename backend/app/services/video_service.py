@@ -53,8 +53,9 @@ class VideoService:
         try:
             from google import genai
             
-            # Initialize client with project
+            # Initialize client for Vertex AI (using service account credentials)
             client = genai.Client(
+                vertexai=True,
                 project=self.settings.google_cloud_project,
                 location=self.settings.google_cloud_location,
             )
