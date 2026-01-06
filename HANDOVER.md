@@ -10,9 +10,23 @@
 
 | Item | Status |
 |------|--------|
-| **Fase** | Initial Setup |
-| **Focus** | Cloud infrastructure opzetten |
-| **Stack** | Next.js + FastAPI + Inngest (zelfde als DealMotion) |
+| **Fase** | ✅ Infrastructure Complete |
+| **Focus** | Daily Pipeline Automation |
+| **Stack** | Next.js + FastAPI + Inngest + Supabase |
+
+---
+
+## 🎉 ALLES WERKT!
+
+| Service | Status | Test URL |
+|---------|--------|----------|
+| **Frontend** | ✅ Live | https://studio.dealmotion.ai |
+| **Backend API** | ✅ Live | https://apistudio.dealmotion.ai |
+| **ElevenLabs TTS** | ✅ Werkend | `/api/tts/generate` |
+| **Google Veo 2** | ✅ Werkend | `/api/videos/test` |
+| **Creatomate Render** | ✅ Werkend | `/api/render/test` |
+| **YouTube Upload** | ✅ Werkend | `/api/youtube/upload` |
+| **Inngest Workflows** | ✅ 3 functions synced |
 
 ---
 
@@ -23,117 +37,122 @@
 │                    DEALMOTION MARKETING ENGINE                   │
 ├─────────────────────────────────────────────────────────────────┤
 │  FRONTEND (Next.js 14 → Vercel)                                 │
-│  ├── Dashboard        → Content overzicht & planning            │
-│  ├── Topic Generator  → Interactief topics genereren            │
-│  └── Settings         → API keys, schedule configuratie         │
+│  └── Dashboard        → studio.dealmotion.ai                    │
 ├─────────────────────────────────────────────────────────────────┤
 │  BACKEND (FastAPI → Railway)                                    │
-│  ├── /api/topics      → Topic generatie endpoints               │
-│  ├── /api/scripts     → Script generatie endpoints              │
-│  ├── /api/videos      → Video generatie status                  │
-│  └── /api/youtube     → Upload management                       │
+│  ├── /api/topics      → Topic generatie (Claude)                │
+│  ├── /api/scripts     → Script generatie (Claude)               │
+│  ├── /api/tts         → Voice-over (ElevenLabs)                 │
+│  ├── /api/videos      → Video generatie (Google Veo 2)          │
+│  ├── /api/render      → Final video + captions (Creatomate)     │
+│  └── /api/youtube     → YouTube upload                          │
 ├─────────────────────────────────────────────────────────────────┤
 │  INNGEST (Workflow Orchestration)                               │
-│  ├── daily-content    → Dagelijkse content pipeline             │
+│  ├── daily-content    → Dagelijkse content pipeline (10:00)     │
 │  ├── generate-video   → Video generatie workflow                │
 │  └── upload-youtube   → YouTube upload workflow                 │
 ├─────────────────────────────────────────────────────────────────┤
 │  EXTERNAL SERVICES                                              │
-│  ├── Anthropic Claude → Script writing                          │
+│  ├── Anthropic Claude → Topic & Script writing                  │
 │  ├── ElevenLabs       → Dutch TTS voice-over                    │
-│  ├── NanoBanana       → AI video generation                     │
+│  ├── Google Veo 2     → AI video generation (Gemini API)        │
+│  ├── Creatomate       → Final render met animated captions      │
 │  └── YouTube API      → Video uploads                           │
 ├─────────────────────────────────────────────────────────────────┤
 │  DATA LAYER                                                     │
-│  └── Supabase         → Content tracking, settings              │
+│  └── Supabase         → PostgreSQL + Storage (audio/video)      │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 📁 Folder Structuur
+## 🔑 Geconfigureerde API Keys (Railway)
+
+| Service | Variable | Status |
+|---------|----------|--------|
+| Anthropic | `ANTHROPIC_API_KEY` | ✅ |
+| ElevenLabs | `ELEVENLABS_API_KEY` | ✅ |
+| ElevenLabs | `ELEVENLABS_VOICE_ID` | ✅ (Daniel) |
+| Google Veo | `GOOGLE_GEMINI_API_KEY` | ✅ |
+| Creatomate | `CREATOMATE_API_KEY` | ✅ |
+| Creatomate | `CREATOMATE_TEMPLATE_ID` | ✅ |
+| YouTube | `YOUTUBE_CLIENT_ID` | ✅ |
+| YouTube | `YOUTUBE_CLIENT_SECRET` | ✅ |
+| YouTube | `YOUTUBE_REFRESH_TOKEN` | ✅ |
+| YouTube | `YOUTUBE_CHANNEL_ID` | ✅ |
+| Supabase | `SUPABASE_URL` | ✅ |
+| Supabase | `SUPABASE_ANON_KEY` | ✅ |
+| Supabase | `SUPABASE_SERVICE_KEY` | ✅ |
+| Inngest | `INNGEST_SIGNING_KEY` | ✅ |
+| Inngest | `INNGEST_EVENT_KEY` | ✅ |
+
+---
+
+## 📺 YouTube Channel
+
+| Item | Value |
+|------|-------|
+| **Channel** | Dealmotion |
+| **Channel ID** | `UC5xiiRBpUll_umBAngD9GXg` |
+| **Type** | Brand Account (privacy) |
+| **Eerste Video** | https://youtube.com/shorts/Ef2CBH79VW0 |
+
+---
+
+## 🎬 Content Pipeline Flow
 
 ```
-dealmotion-marketing/
-├── frontend/                    # Next.js (Vercel)
-│   ├── app/
-│   │   ├── page.tsx            # Dashboard
-│   │   ├── topics/             # Topic management
-│   │   ├── videos/             # Video management
-│   │   └── settings/           # Settings
-│   └── components/
-│
-├── backend/                     # FastAPI (Railway)
-│   ├── app/
-│   │   ├── main.py             # FastAPI app
-│   │   ├── routers/            # API endpoints
-│   │   ├── services/           # External APIs
-│   │   └── inngest/            # Inngest functions
-│   └── requirements.txt
-│
-├── database/                    # Supabase migrations
-│   └── schema.sql
-│
-└── docs/                        # Documentation
-    └── HANDOVER.md             # This file
+1. TOPIC AGENT (Claude)
+   ↓ Genereert trending B2B sales topic
+   
+2. SCRIPT AGENT (Claude)  
+   ↓ Schrijft 35-60s script met hook + CTA
+   
+3. TTS AGENT (ElevenLabs)
+   ↓ Nederlandse voice-over → Supabase Storage
+   
+4. VIDEO AGENT (Google Veo 2)
+   ↓ Genereert 8s background video clips
+   
+5. RENDER AGENT (Creatomate)
+   ↓ Combineert video + audio + animated captions
+   
+6. YOUTUBE AGENT
+   ↓ Upload naar YouTube als Short
+   
+7. ANALYTICS AGENT (toekomst)
+   → Verzamelt metrics voor optimalisatie
 ```
 
 ---
 
-## 🔧 Tech Stack
+## ✅ Completed (6 Jan 2026)
 
-| Layer | Technology | Purpose |
-|-------|------------|---------|
-| **Frontend** | Next.js 14 | Dashboard UI |
-| **Backend** | FastAPI | API endpoints |
-| **Database** | Supabase | Content tracking |
-| **Jobs** | Inngest | Scheduled content generation |
-| **Hosting** | Vercel + Railway | Cloud deployment |
-| **AI** | Claude | Script writing |
-| **TTS** | ElevenLabs | Dutch voice-over |
-| **Video** | NanoBanana | AI video generation |
-| **YouTube** | YouTube API | Video uploads |
-
----
-
-## 📋 Implementation Roadmap
-
-### Phase 1: Infrastructure ⏳
-- [ ] Frontend setup (Next.js + Vercel)
-- [ ] Backend setup (FastAPI + Railway)
-- [ ] Database setup (Supabase)
-- [ ] Inngest integration
-
-### Phase 2: Core Features
-- [ ] Topic generation API
-- [ ] Script generation API
-- [ ] TTS integration (ElevenLabs)
-- [ ] Video generation (NanoBanana)
-- [ ] YouTube upload
-
-### Phase 3: Dashboard
-- [ ] Content calendar view
-- [ ] Topic queue management
-- [ ] Video status tracking
-- [ ] Analytics
-
-### Phase 4: Automation
-- [ ] Daily content cron job
-- [ ] Auto-publish workflow
-- [ ] Error notifications
+- [x] GitHub repos (code + docs)
+- [x] Vercel deployment - `studio.dealmotion.ai`
+- [x] Railway deployment - `apistudio.dealmotion.ai`  
+- [x] Supabase database + storage
+- [x] Inngest workflows (3 functions)
+- [x] ElevenLabs TTS integration
+- [x] Google Veo 2 video generation
+- [x] Creatomate final render met captions
+- [x] YouTube OAuth + upload
+- [x] **Eerste video live op YouTube!**
 
 ---
 
-## 🔑 Required API Keys
+## 🎯 Volgende Stappen
 
-| Service | Environment Variable | Get Key |
-|---------|---------------------|---------|
-| Anthropic | `ANTHROPIC_API_KEY` | console.anthropic.com |
-| ElevenLabs | `ELEVENLABS_API_KEY` | elevenlabs.io |
-| NanoBanana | `NANOBANANA_API_KEY` | nanobananavideo.com |
-| YouTube | `YOUTUBE_CLIENT_ID/SECRET` | Google Cloud Console |
-| Supabase | `SUPABASE_URL/KEY` | supabase.com |
-| Inngest | `INNGEST_SIGNING_KEY` | inngest.com |
+### Nu te doen:
+1. [ ] **Daily Pipeline activeren** - Inngest cron job automatisch starten
+2. [ ] **End-to-end pipeline test** - Alles achter elkaar draaien
+3. [ ] **Topic → Script → TTS → Video → Render → Upload** als één flow
+
+### Later:
+4. [ ] Dashboard uitbouwen met pipeline status
+5. [ ] Analytics verzamelen (views, retention)
+6. [ ] Content variatie (4 types: sales_tip, ai_news, hot_take, product)
+7. [ ] Self-optimization rules
 
 ---
 
@@ -144,58 +163,27 @@ Ik wil verder werken aan de DealMotion Marketing Engine.
 
 Lees @HANDOVER.md voor de huidige status.
 
-Na het lezen:
-- Vat kort samen waar we zijn
-- Ga verder met de volgende stap in de roadmap
+Alles staat live:
+- Frontend: studio.dealmotion.ai
+- Backend: apistudio.dealmotion.ai
+- YouTube: Dealmotion channel
+
+Volgende stap: Daily pipeline end-to-end testen
 ```
 
 ---
 
-## ✅ Completed
+## 💰 Kosten Schatting (per video)
 
-- [x] Initial project structure
-- [x] Cloud architecture design (Vercel + Railway + Inngest)
-- [x] FastAPI backend with routers & services
-- [x] Inngest functions for automated pipeline
-- [x] Database schema (Supabase)
-- [x] API endpoints (topics, scripts, videos, youtube)
-- [x] Frontend Next.js 14 dashboard
-- [x] **Full cloud deployment**
-  - [x] GitHub repos (code + docs)
-  - [x] Vercel (frontend) - `studio.dealmotion.ai`
-  - [x] Railway (backend) - live
-  - [x] Supabase (database) - schema deployed
-  - [x] Inngest (workflows) - 3 functions synced
-
----
-
-## 🔄 Current Session (6 Jan 2026)
-
-**Voltooid:**
-- ✅ Backend herstructurering naar FastAPI (Railway-ready)
-- ✅ Inngest integratie voor daily pipeline
-- ✅ API routers: /api/topics, /api/scripts, /api/videos, /api/youtube
-- ✅ Services: TopicService, ScriptService, TTSService, VideoService, YouTubeService
-- ✅ Database schema met 6 tabellen
-- ✅ Docs repo opgezet (dealmotion-marketing-docs)
-- ✅ ChatGPT review verwerkt (guardrails, QC gates, SEO agent)
-- ✅ Frontend Next.js 14 app opgezet
-- ✅ **Cloud Infrastructure LIVE:**
-  - GitHub: `styler1one/dealmotion-marketing` (public)
-  - GitHub: `styler1one/dealmotion-marketing-docs` (private)
-  - Frontend: `studio.dealmotion.ai` (Vercel)
-  - Backend: `dealmotion-marketing-production.up.railway.app` (Railway)
-  - Database: Supabase (schema deployed)
-  - Workflows: Inngest (3 functions synced)
-
-**Volgende stappen (Phase 2: Core Pipeline):**
-1. [ ] Topic generation werkend maken
-2. [ ] Script generation implementeren
-3. [ ] TTS integration (ElevenLabs)
-4. [ ] Video generation (NanoBanana)
-5. [ ] YouTube upload (OAuth)
+| Service | Kosten |
+|---------|--------|
+| Claude (topic + script) | ~$0.01 |
+| ElevenLabs (TTS) | ~$0.10 |
+| Google Veo 2 (8s video) | ~$0.30 |
+| Creatomate (render) | ~$0.15 |
+| **Totaal per video** | **~$0.56** |
+| **Maandelijks (30 videos)** | **~$17** |
 
 ---
 
 *Dit document wordt bijgehouden voor handover tussen sessies.*
-
