@@ -153,20 +153,36 @@ class VideoService:
             raise
     
     def _build_video_prompt(self, script_text: str, style: str) -> str:
-        """Build a video generation prompt from script text."""
-        prompt = f"""
-Professional business video, {style}.
+        """
+        Build a cinematic video prompt based on the script content.
+        
+        Creates specific, visual prompts that Veo can render well.
+        """
+        # Analyze script to determine scene type
+        text_lower = script_text.lower()
+        
+        # Determine scene based on content keywords
+        if any(word in text_lower for word in ['cold call', 'bellen', 'telefoon', 'phone']):
+            scene = "Modern office environment, professional salesperson at desk with headset, multiple monitors showing CRM dashboard, warm lighting, focused expression, cinematic shallow depth of field"
+        elif any(word in text_lower for word in ['ai', 'artificial intelligence', 'machine learning', 'automatisering']):
+            scene = "Futuristic tech office, holographic data visualizations floating in air, sleek modern workspace, blue and purple ambient lighting, person interacting with AI interface, cinematic"
+        elif any(word in text_lower for word in ['sales', 'verkoop', 'deal', 'prospect', 'lead']):
+            scene = "Dynamic business meeting, diverse professionals in modern glass office, handshake moment, charts and graphs on screen in background, golden hour lighting, cinematic"
+        elif any(word in text_lower for word in ['email', 'outreach', 'linkedin', 'social']):
+            scene = "Creative professional workspace, person typing on laptop, multiple screens with social media dashboards, coffee cup, plants, modern minimalist design, soft natural lighting"
+        elif any(word in text_lower for word in ['groei', 'growth', 'scale', 'revenue', 'omzet']):
+            scene = "Upward trending graphs and charts in 3D space, dynamic camera moving through data visualization, green growth indicators, celebration confetti, professional office background"
+        else:
+            # Default professional business scene
+            scene = "Modern startup office, team collaboration at standing desks, large windows with city skyline, laptops and whiteboards, energetic atmosphere, cinematic lighting"
+        
+        prompt = f"""Cinematic vertical video (9:16 aspect ratio), {scene}.
 
-Content theme: {script_text[:200]}
+Style: Professional commercial quality, smooth cinematic camera movement, high production value, shallow depth of field, dynamic but not chaotic.
 
-Visual style:
-- Modern, clean corporate aesthetic
-- Dynamic motion graphics
-- Professional color grading (blues, whites)
-- Smooth camera movements
-- High quality, cinematic appearance
-- Suitable for YouTube Shorts (vertical 9:16)
-"""
+Technical: 4K quality, professional color grading, no text overlays, no watermarks, photorealistic, modern corporate aesthetic."""
+        
+        logger.info(f"Generated Veo prompt for content type based on keywords")
         return prompt.strip()
     
     def generate_video_with_audio(
