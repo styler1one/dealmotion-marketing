@@ -12,7 +12,7 @@ import inngest
 from inngest.fast_api import serve
 
 from app.config import get_settings
-from app.routers import topics, scripts, videos, youtube, tts, render, pipeline
+from app.routers import topics, scripts, videos, youtube, tts, render, pipeline, dashboard
 from app.inngest.client import inngest_client
 from app.inngest.functions import (
     daily_content_pipeline,
@@ -62,6 +62,7 @@ app.include_router(youtube.router, prefix="/api/youtube", tags=["YouTube"])
 app.include_router(tts.router, prefix="/api/tts", tags=["TTS"])
 app.include_router(render.router, prefix="/api/render", tags=["Render"])
 app.include_router(pipeline.router, prefix="/api/pipeline", tags=["Pipeline"])
+app.include_router(dashboard.router, prefix="/api/dashboard", tags=["Dashboard"])
 
 # Inngest endpoint
 serve(

@@ -1,62 +1,64 @@
 "use client";
 
-import { ExternalLink, Play, Eye, Clock } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ExternalLink, Play, Eye, ThumbsUp, MessageCircle } from "lucide-react";
+import { getRecentVideos, VideoItem } from "@/lib/api";
+import Image from "next/image";
 
-interface Video {
-  id: string;
-  title: string;
-  type: string;
-  status: "published" | "processing" | "queued";
-  views?: number;
-  retention?: number;
-  publishedAt?: string;
-  youtubeUrl?: string;
-}
-
-function VideoCard({ video }: { video: Video }) {
-  const statusColors = {
-    published: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-    processing: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-    queued: "bg-slate-500/10 text-slate-400 border-slate-500/20",
-  };
+function VideoCard({ video }: { video: VideoItem }) {
+  const publishedDate = video.published_at 
+    ? new Date(video.published_at).toLocaleDateString("nl-NL", {
+        day: "numeric",
+        month: "short",
+      })
+    : null;
 
   return (
     <div className="flex items-center gap-4 p-4 rounded-lg bg-surface hover:bg-surface-lighter transition-colors">
-      {/* Thumbnail placeholder */}
-      <div className="w-32 h-20 bg-surface-lighter rounded-lg flex items-center justify-center">
-        <Play className="w-8 h-8 text-slate-600" />
+      {/* Thumbnail */}
+      <div className="w-32 h-20 bg-surface-lighter rounded-lg flex items-center justify-center overflow-hidden relative flex-shrink-0">
+        {video.thumbnail_url ? (
+          <Image
+            src={video.thumbnail_url}
+            alt={video.title}
+            fill
+            className="object-cover"
+          />
+        ) : (
+          <Play className="w-8 h-8 text-slate-600" />
+        )}
+        {video.is_short && (
+          <span className="absolute bottom-1 right-1 bg-red-600 text-white text-[10px] px-1 rounded">
+            SHORT
+          </span>
+        )}
       </div>
 
       {/* Info */}
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-1">
-          <h3 className="font-medium text-slate-200 truncate">{video.title}</h3>
-          <span className={`px-2 py-0.5 text-xs rounded-full border ${statusColors[video.status]}`}>
-            {video.status}
-          </span>
-        </div>
+        <h3 className="font-medium text-slate-200 truncate mb-1">{video.title}</h3>
         
         <div className="flex items-center gap-4 text-sm text-slate-500">
-          <span className="capitalize">{video.type.replace("_", " ")}</span>
-          {video.views !== undefined && (
-            <span className="flex items-center gap-1">
-              <Eye className="w-3 h-3" />
-              {video.views.toLocaleString()}
-            </span>
-          )}
-          {video.retention !== undefined && (
-            <span className="flex items-center gap-1">
-              <Clock className="w-3 h-3" />
-              {video.retention}% retention
-            </span>
-          )}
+          {publishedDate && <span>{publishedDate}</span>}
+          <span className="flex items-center gap-1">
+            <Eye className="w-3 h-3" />
+            {video.views.toLocaleString()}
+          </span>
+          <span className="flex items-center gap-1">
+            <ThumbsUp className="w-3 h-3" />
+            {video.likes.toLocaleString()}
+          </span>
+          <span className="flex items-center gap-1">
+            <MessageCircle className="w-3 h-3" />
+            {video.comments.toLocaleString()}
+          </span>
         </div>
       </div>
 
       {/* Actions */}
-      {video.youtubeUrl && (
+      {video.youtube_url && (
         <a
-          href={video.youtubeUrl}
+          href={video.youtube_url}
           target="_blank"
           rel="noopener noreferrer"
           className="p-2 text-slate-400 hover:text-brand-400 transition-colors"
@@ -69,8 +71,22 @@ function VideoCard({ video }: { video: Video }) {
 }
 
 export function RecentVideos() {
-  // TODO: Fetch real data from API
-  const videos: Video[] = [];
+  const [videos, setVideos] = useState<VideoItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchVideos() {
+      try {
+        const data = await getRecentVideos(5);
+        setVideos(data.videos || []);
+      } catch (error) {
+        console.error("Failed to fetch videos:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchVideos();
+  }, []);
 
   return (
     <div className="card">
@@ -81,7 +97,19 @@ export function RecentVideos() {
         </a>
       </div>
 
-      {videos.length === 0 ? (
+      {loading ? (
+        <div className="space-y-2">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="flex items-center gap-4 p-4 rounded-lg bg-surface animate-pulse">
+              <div className="w-32 h-20 bg-slate-700 rounded-lg" />
+              <div className="flex-1">
+                <div className="h-4 w-48 bg-slate-700 rounded mb-2" />
+                <div className="h-3 w-32 bg-slate-700 rounded" />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : videos.length === 0 ? (
         <div className="py-12 text-center">
           <Play className="w-12 h-12 text-slate-600 mx-auto mb-4" />
           <p className="text-slate-400">No videos yet</p>
@@ -99,4 +127,3 @@ export function RecentVideos() {
     </div>
   );
 }
-

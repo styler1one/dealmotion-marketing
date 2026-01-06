@@ -116,6 +116,67 @@ export async function triggerPipeline() {
 }
 
 // ============================================================
+// Dashboard
+// ============================================================
+
+export interface DashboardStats {
+  total_videos: number;
+  total_views: number;
+  videos_this_week: number;
+  content_mix: {
+    sales_tip: number;
+    ai_news: number;
+    hot_take: number;
+    product_showcase: number;
+  };
+}
+
+export interface VideoItem {
+  id: string;
+  youtube_id: string;
+  youtube_url: string;
+  title: string;
+  thumbnail_url: string;
+  views: number;
+  likes: number;
+  comments: number;
+  published_at: string;
+  is_short: boolean;
+}
+
+export interface PipelineRunItem {
+  id: string;
+  run_date: string;
+  status: string;
+  topics_generated: number;
+  scripts_generated: number;
+  videos_created: number;
+  videos_uploaded: number;
+  started_at: string;
+  completed_at: string | null;
+}
+
+export async function getDashboardStats() {
+  return api<DashboardStats>("/api/dashboard/stats");
+}
+
+export async function getRecentVideos(limit = 10) {
+  return api<{ videos: VideoItem[] }>(`/api/dashboard/videos?limit=${limit}`);
+}
+
+export async function getPipelineRuns(limit = 10) {
+  return api<{ runs: PipelineRunItem[] }>(`/api/dashboard/pipeline-runs?limit=${limit}`);
+}
+
+export async function getLatestPipelineRun() {
+  return api<{ run: PipelineRunItem | null }>("/api/dashboard/pipeline-runs/latest");
+}
+
+export async function getContentMix() {
+  return api<{ content_mix: DashboardStats["content_mix"] }>("/api/dashboard/content-mix");
+}
+
+// ============================================================
 // Health
 // ============================================================
 

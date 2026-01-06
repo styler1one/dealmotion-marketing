@@ -8,6 +8,7 @@ COMPLETE PIPELINE:
 4. Background Video (Google Veo 2)
 5. Final Render with Captions (Creatomate)
 6. YouTube Upload
+7. Save to Database
 
 NOTE: Using Inngest SDK v0.5+ signature where step is accessed via ctx.step
 """
@@ -23,6 +24,7 @@ from app.services.tts_service import TTSService
 from app.services.video_service import VideoService
 from app.services.render_service import RenderService
 from app.services.youtube_service import YouTubeService
+from app.services.database_service import DatabaseService
 
 
 # =============================================================================
@@ -41,8 +43,18 @@ async def daily_content_pipeline(ctx: inngest.Context) -> dict:
     """
     step = ctx.step
     settings = get_settings()
+    db = DatabaseService()
+    
+    # Create pipeline run record
+    pipeline_run = await step.run(
+        "create-pipeline-run",
+        lambda: db.create_pipeline_run()
+    )
+    run_id = pipeline_run.get("id")
+    
     results = {
         "date": datetime.now().isoformat(),
+        "run_id": run_id,
         "topics_generated": 0,
         "videos_created": 0,
         "videos_uploaded": 0,
@@ -63,8 +75,23 @@ async def daily_content_pipeline(ctx: inngest.Context) -> dict:
         results["topics_generated"] = len(topics)
         logger.info(f"📝 Generated {len(topics)} topics")
         
+        # Save topics to database
+        saved_topics = []
+        for topic in topics:
+            saved_topic = await step.run(
+                f"save-topic-{topic.get('id', 'unknown')}",
+                lambda t=topic: db.create_topic(t)
+            )
+            saved_topics.append(saved_topic)
+        
+        # Update pipeline run
+        await step.run(
+            "update-run-topics",
+            lambda: db.update_pipeline_run(run_id, topics_generated=len(topics))
+        )
+        
         # Step 2: Process each topic
-        for i, topic in enumerate(topics):
+        for i, topic in enumerate(saved_topics):
             topic_id = topic.get("id", f"topic_{i}")
             
             try:
@@ -75,6 +102,18 @@ async def daily_content_pipeline(ctx: inngest.Context) -> dict:
                 )
                 logger.info(f"📜 Script generated for: {topic.get('title')}")
                 
+                # Save script to database
+                saved_script = await step.run(
+                    f"save-script-{topic_id}",
+                    lambda s=script, tid=topic_id: db.create_script(s, tid)
+                )
+                
+                # Update pipeline run
+                await step.run(
+                    f"update-run-scripts-{topic_id}",
+                    lambda: db.update_pipeline_run(run_id, scripts_generated=i+1)
+                )
+                
                 # Trigger video generation workflow
                 await step.send_event(
                     "trigger-video-generation",
@@ -83,6 +122,9 @@ async def daily_content_pipeline(ctx: inngest.Context) -> dict:
                         data={
                             "topic": topic,
                             "script": script,
+                            "topic_id": topic_id,
+                            "script_id": saved_script.get("id"),
+                            "run_id": run_id,
                             "upload_after": True
                         }
                     )
@@ -92,9 +134,19 @@ async def daily_content_pipeline(ctx: inngest.Context) -> dict:
                 logger.error(f"❌ Error processing topic {topic_id}: {e}")
                 results["errors"].append(f"Topic {topic_id}: {str(e)}")
         
+        # Mark pipeline as completed
+        await step.run(
+            "complete-pipeline-run",
+            lambda: db.update_pipeline_run(run_id, status="completed")
+        )
+        
     except Exception as e:
         logger.error(f"❌ Pipeline failed: {e}")
         results["errors"].append(str(e))
+        await step.run(
+            "fail-pipeline-run",
+            lambda: db.update_pipeline_run(run_id, status="failed", errors=[str(e)])
+        )
     
     logger.info(f"✅ === Pipeline Complete: {results} ===")
     return results
@@ -115,14 +167,19 @@ async def generate_video_fn(ctx: inngest.Context) -> dict:
     1. Generate voice-over (ElevenLabs)
     2. Generate background video (Google Veo 2)
     3. Render final video with captions (Creatomate)
-    4. Upload to YouTube
+    4. Save to database
+    5. Upload to YouTube
     """
     step = ctx.step
     data = ctx.event.data
     script = data.get("script")
     topic = data.get("topic")
+    topic_id = data.get("topic_id")
+    script_id = data.get("script_id")
+    run_id = data.get("run_id")
     upload_after = data.get("upload_after", True)
     
+    db = DatabaseService()
     title = topic.get('title', script.get('title', 'Unknown'))
     logger.info(f"🎬 Starting video generation: {title}")
     
@@ -179,15 +236,38 @@ async def generate_video_fn(ctx: inngest.Context) -> dict:
     final_video_url = render_result.get("video_url")
     logger.info(f"✅ Final video rendered: {final_video_url}")
     
-    # Step 4: Upload to YouTube
+    # Step 4: Save video to database
+    video_record = await step.run(
+        "save-video-to-db",
+        lambda: db.create_video(
+            title=title,
+            script_id=script_id,
+            video_url=final_video_url,
+            audio_url=audio_url,
+            duration_seconds=script.get("total_duration_seconds", 25)
+        )
+    )
+    video_db_id = video_record.get("id")
+    logger.info(f"💾 Video saved to database: {video_db_id}")
+    
+    # Update pipeline run if we have run_id
+    if run_id:
+        await step.run(
+            "update-run-videos",
+            lambda: db.update_pipeline_run(run_id, videos_created=1)
+        )
+    
+    # Step 5: Upload to YouTube
     if upload_after:
-        logger.info("📺 Step 4: Uploading to YouTube...")
+        logger.info("📺 Step 5: Uploading to YouTube...")
         await step.send_event(
             "trigger-youtube-upload",
             inngest.Event(
                 name="marketing/youtube.upload",
                 data={
                     "video_url": final_video_url,
+                    "video_db_id": video_db_id,
+                    "run_id": run_id,
                     "title": script.get("title", title),
                     "description": script.get("description", f"Sales tips van {get_settings().brand_name}"),
                     "tags": topic.get("hashtags", ["sales", "AI", "B2B"])
@@ -197,6 +277,7 @@ async def generate_video_fn(ctx: inngest.Context) -> dict:
     
     return {
         "status": "completed",
+        "video_db_id": video_db_id,
         "audio_url": audio_url,
         "background_video_url": background_video_url,
         "final_video_url": final_video_url,
@@ -213,9 +294,13 @@ async def generate_video_fn(ctx: inngest.Context) -> dict:
     retries=2,
 )
 async def upload_to_youtube_fn(ctx: inngest.Context) -> dict:
-    """Upload a video to YouTube."""
+    """Upload a video to YouTube and save to database."""
     step = ctx.step
     data = ctx.event.data
+    db = DatabaseService()
+    
+    video_db_id = data.get("video_db_id")
+    run_id = data.get("run_id")
     
     logger.info(f"📺 Uploading to YouTube: {data.get('title')}")
     
@@ -229,11 +314,35 @@ async def upload_to_youtube_fn(ctx: inngest.Context) -> dict:
         )
     )
     
-    logger.info(f"✅ Uploaded: {result.get('youtube_url')}")
+    youtube_id = result.get("youtube_id")
+    youtube_url = result.get("youtube_url")
+    logger.info(f"✅ Uploaded: {youtube_url}")
+    
+    # Save YouTube upload to database
+    if video_db_id:
+        await step.run(
+            "save-youtube-upload",
+            lambda: db.create_youtube_upload(
+                video_id=video_db_id,
+                youtube_id=youtube_id,
+                youtube_url=youtube_url,
+                title=data.get("title"),
+                description=data.get("description"),
+                tags=data.get("tags", [])
+            )
+        )
+        logger.info(f"💾 YouTube upload saved to database")
+    
+    # Update pipeline run if we have run_id
+    if run_id:
+        await step.run(
+            "update-run-uploads",
+            lambda: db.update_pipeline_run(run_id, videos_uploaded=1)
+        )
     
     return {
-        "youtube_id": result.get("youtube_id"),
-        "youtube_url": result.get("youtube_url"),
+        "youtube_id": youtube_id,
+        "youtube_url": youtube_url,
         "status": "uploaded"
     }
 
