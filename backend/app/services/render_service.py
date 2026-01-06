@@ -95,9 +95,11 @@ class RenderService:
         """Build Creatomate modifications from script segments."""
         modifications = {}
         
-        # Add audio (voice-over)
+        # Add voice-over audio (use Music slot since template uses Music.source)
+        # The voice-over replaces background music
         if audio_url:
-            modifications["Audio.source"] = audio_url
+            modifications["Music.source"] = audio_url
+            modifications["Music.volume"] = "100%"  # Full volume for voice-over
         
         # Add background video if provided
         if background_video_url:
@@ -105,15 +107,12 @@ class RenderService:
             for i in range(1, 5):
                 modifications[f"Background-{i}.source"] = background_video_url
         
-        # Add music if provided
-        if music_url:
-            modifications["Music.source"] = music_url
-            modifications["Music.volume"] = "30%"  # Lower volume for voice-over
-        
-        # Add text segments
+        # Add text segments (animated captions)
         for i, segment in enumerate(script_segments[:4], start=1):
             text = segment.get("text", "")
             modifications[f"Text-{i}.text"] = text
+        
+        logger.info(f"Creatomate modifications: {list(modifications.keys())}")
         
         return modifications
     
