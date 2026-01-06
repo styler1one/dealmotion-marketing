@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground: #f8fafc;
+  --background: #0f172a;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* Status indicators */
+.status-dot {
+  @apply w-2 h-2 rounded-full;
+}
+
+.status-dot.success {
+  @apply bg-emerald-500;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+}
+
+.status-dot.running {
+  @apply bg-amber-500;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.status-dot.failed {
+  @apply bg-red-500;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+}
+
+.status-dot.pending {
+  @apply bg-slate-500;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Card styles */
+.card {
+  @apply bg-surface-light rounded-xl border border-slate-700/50 p-6;
+}
+
+.card-header {
+  @apply flex items-center justify-between mb-4;
+}
+
+.card-title {
+  @apply text-lg font-semibold text-slate-100;
+}
+

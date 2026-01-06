@@ -1,0 +1,60 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+*.so
+.eggs/
+*.egg-info/
+*.egg
+
+# Environment
+.env
+.env.local
+.env*.local
+*.local
+.venv/
+venv/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.cursor/
+
+# Build
+.next/
+out/
+build/
+dist/
+*.egg-info/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Output (generated content)
+output/videos/*
+output/shorts/*
+!output/videos/.gitkeep
+!output/shorts/.gitkeep
+
+# Test
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Vercel
+.vercel
+
+# Supabase
+supabase/.temp/

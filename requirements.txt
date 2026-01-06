@@ -1,0 +1,49 @@
+# DealMotion Marketing Engine - Python Dependencies
+
+# AI & LLM
+anthropic>=0.18.0          # Claude API for script generation
+openai>=1.12.0             # Fallback / TTS options
+
+# Text-to-Speech
+elevenlabs>=1.0.0          # Dutch voice synthesis
+
+# Video Processing
+moviepy>=1.0.3             # Video editing/assembly
+Pillow>=10.0.0             # Image processing
+numpy>=1.24.0              # Array operations
+
+# YouTube API
+google-api-python-client>=2.100.0
+google-auth-oauthlib>=1.1.0
+google-auth-httplib2>=0.1.1
+
+# HTTP & APIs
+httpx>=0.25.0              # Async HTTP client
+requests>=2.31.0           # HTTP requests
+aiohttp>=3.9.0             # Async HTTP
+
+# Database
+sqlalchemy>=2.0.0          # ORM
+aiosqlite>=0.19.0          # Async SQLite
+
+# Scheduling
+schedule>=1.2.0            # Job scheduling
+apscheduler>=3.10.0        # Advanced scheduling
+
+# Configuration
+python-dotenv>=1.0.0       # Environment variables
+pydantic>=2.5.0            # Data validation
+pydantic-settings>=2.1.0   # Settings management
+
+# Utilities
+rich>=13.7.0               # Beautiful terminal output
+click>=8.1.0               # CLI framework
+loguru>=0.7.0              # Logging
+
+# Development
+pytest>=7.4.0              # Testing
+pytest-asyncio>=0.21.0     # Async testing
+black>=23.0.0              # Code formatting
+ruff>=0.1.0                # Linting
+
+
