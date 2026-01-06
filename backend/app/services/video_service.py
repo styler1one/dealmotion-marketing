@@ -156,33 +156,84 @@ class VideoService:
         """
         Build a cinematic video prompt based on the script content.
         
-        Creates specific, visual prompts that Veo can render well.
+        Creates human, relatable, stylish scenes for modern sales professionals.
+        NOT boring corporate stock footage - real people, authentic vibes.
         """
+        import random
+        
         # Analyze script to determine scene type
         text_lower = script_text.lower()
         
-        # Determine scene based on content keywords
-        if any(word in text_lower for word in ['cold call', 'bellen', 'telefoon', 'phone']):
-            scene = "Modern office environment, professional salesperson at desk with headset, multiple monitors showing CRM dashboard, warm lighting, focused expression, cinematic shallow depth of field"
-        elif any(word in text_lower for word in ['ai', 'artificial intelligence', 'machine learning', 'automatisering']):
-            scene = "Futuristic tech office, holographic data visualizations floating in air, sleek modern workspace, blue and purple ambient lighting, person interacting with AI interface, cinematic"
-        elif any(word in text_lower for word in ['sales', 'verkoop', 'deal', 'prospect', 'lead']):
-            scene = "Dynamic business meeting, diverse professionals in modern glass office, handshake moment, charts and graphs on screen in background, golden hour lighting, cinematic"
-        elif any(word in text_lower for word in ['email', 'outreach', 'linkedin', 'social']):
-            scene = "Creative professional workspace, person typing on laptop, multiple screens with social media dashboards, coffee cup, plants, modern minimalist design, soft natural lighting"
-        elif any(word in text_lower for word in ['groei', 'growth', 'scale', 'revenue', 'omzet']):
-            scene = "Upward trending graphs and charts in 3D space, dynamic camera moving through data visualization, green growth indicators, celebration confetti, professional office background"
+        # Human, stylish scene options - relatable to modern salespeople
+        scenes = {
+            'cold_calling': [
+                "Confident young professional walking through city street while on phone call, stylish casual business attire, AirPods, golden hour sunlight, cinematic urban backdrop, genuine smile",
+                "Charismatic salesperson in trendy co-working space, taking a call by large window, city skyline view, natural lighting, relaxed confident posture, modern aesthetic",
+                "Dynamic professional pacing in minimalist loft apartment, on an important call, exposed brick walls, morning light streaming in, authentic moment of focus",
+            ],
+            'ai_tech': [
+                "Young tech-savvy professional in sleek modern cafe, working on MacBook, thoughtful expression, ambient warm lighting, plants and coffee, creative energy",
+                "Confident entrepreneur reviewing data on tablet in rooftop bar setting, city lights in background, evening ambiance, sophisticated but approachable",
+                "Diverse team having animated discussion in bright modern space, authentic collaboration moment, natural body language, contemporary setting",
+            ],
+            'sales_deals': [
+                "Two professionals having coffee meeting in upscale cafe, genuine connection moment, smart casual attire, warm natural lighting, authentic conversation",
+                "Confident closer walking out of modern building, successful energy, stylish outfit, sunset lighting, urban environment, victory moment",
+                "Charismatic professional presenting to small group in modern lounge setting, engaged audience, warm atmosphere, natural interaction",
+            ],
+            'outreach': [
+                "Creative professional in cozy home office setup, plants and personality, focused but relaxed, morning coffee ritual, authentic workspace",
+                "Young entrepreneur typing on laptop at trendy cafe terrace, urban backdrop, golden hour, casual confidence, lifestyle moment",
+                "Professional scrolling phone in stylish lobby, modern architecture, natural light, candid moment of research",
+            ],
+            'growth_success': [
+                "Team celebrating win in modern office with champagne, genuine joy and high-fives, diverse group, warm lighting, authentic celebration",
+                "Entrepreneur looking out over city from high-rise window, contemplative success moment, silhouette against skyline, aspirational",
+                "Professional pumping fist in victory after closing deal, authentic emotion, modern workspace backdrop, energy and triumph",
+            ],
+            'default': [
+                "Stylish young professional walking confidently through modern city, smart casual look, AirPods in, purposeful stride, cinematic urban feel",
+                "Charismatic person having video call in aesthetic home setup, ring light glow, genuine engagement, contemporary lifestyle",
+                "Dynamic professional in motion through sleek building lobby, modern architecture, natural confidence, cinematic movement",
+            ]
+        }
+        
+        # Determine scene category based on content keywords
+        if any(word in text_lower for word in ['cold call', 'bellen', 'telefoon', 'phone', 'call']):
+            category = 'cold_calling'
+        elif any(word in text_lower for word in ['ai', 'artificial intelligence', 'machine learning', 'automatisering', 'tech']):
+            category = 'ai_tech'
+        elif any(word in text_lower for word in ['sales', 'verkoop', 'deal', 'prospect', 'lead', 'klant', 'close']):
+            category = 'sales_deals'
+        elif any(word in text_lower for word in ['email', 'outreach', 'linkedin', 'social', 'netwerk']):
+            category = 'outreach'
+        elif any(word in text_lower for word in ['groei', 'growth', 'scale', 'revenue', 'omzet', 'succes', 'win']):
+            category = 'growth_success'
         else:
-            # Default professional business scene
-            scene = "Modern startup office, team collaboration at standing desks, large windows with city skyline, laptops and whiteboards, energetic atmosphere, cinematic lighting"
+            category = 'default'
         
-        prompt = f"""Cinematic vertical video (9:16 aspect ratio), {scene}.
-
-Style: Professional commercial quality, smooth cinematic camera movement, high production value, shallow depth of field, dynamic but not chaotic.
-
-Technical: 4K quality, professional color grading, no text overlays, no watermarks, photorealistic, modern corporate aesthetic."""
+        # Pick random scene from category for variety
+        scene = random.choice(scenes[category])
         
-        logger.info(f"Generated Veo prompt for content type based on keywords")
+        prompt = f"""Cinematic vertical video (9:16 aspect ratio for YouTube Shorts).
+
+Scene: {scene}
+
+Style requirements:
+- Real human subjects, authentic not staged
+- Modern, aspirational lifestyle aesthetic
+- Cinematic shallow depth of field
+- Smooth camera movement (slow motion or gimbal)
+- Premium color grading, warm tones
+- NO corporate stock footage look
+- NO suits and ties
+- NO pointing at graphs
+- Genuine human moments
+- Stylish, confident, relatable
+
+Technical: High-end commercial quality, photorealistic, no text overlays, no watermarks."""
+        
+        logger.info(f"Generated Veo prompt: category={category}")
         return prompt.strip()
     
     def generate_video_with_audio(
