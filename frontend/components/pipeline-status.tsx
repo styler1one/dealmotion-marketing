@@ -92,8 +92,18 @@ export function PipelineStatus() {
         setLoading(false);
       }
     }
+    
     fetchLatestRun();
-  }, []);
+    
+    // Poll every 5 seconds while a run is in progress
+    const interval = setInterval(() => {
+      if (latestRun?.status === "running") {
+        fetchLatestRun();
+      }
+    }, 5000);
+    
+    return () => clearInterval(interval);
+  }, [latestRun?.status]);
 
   const triggerPipeline = async () => {
     setTriggering(true);

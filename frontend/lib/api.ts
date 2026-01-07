@@ -12,20 +12,35 @@ interface ApiOptions {
 async function api<T>(endpoint: string, options: ApiOptions = {}): Promise<T> {
   const { method = "GET", body } = options;
 
-  const response = await fetch(`${API_URL}${endpoint}`, {
-    method,
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: body ? JSON.stringify(body) : undefined,
-  });
+  // Create AbortController for timeout
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ detail: "Unknown error" }));
-    throw new Error(error.detail || `API error: ${response.status}`);
+  try {
+    const response = await fetch(`${API_URL}${endpoint}`, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: body ? JSON.stringify(body) : undefined,
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: "Unknown error" }));
+      throw new Error(error.detail || `API error: ${response.status}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error instanceof Error && error.name === "AbortError") {
+      throw new Error("Request timeout - server may be busy");
+    }
+    throw error;
   }
-
-  return response.json();
 }
 
 // ============================================================
@@ -123,12 +138,7 @@ export interface DashboardStats {
   total_videos: number;
   total_views: number;
   videos_this_week: number;
-  content_mix: {
-    sales_tip: number;
-    ai_news: number;
-    hot_take: number;
-    product_showcase: number;
-  };
+  content_mix: Record<string, number>;
 }
 
 export interface VideoItem {

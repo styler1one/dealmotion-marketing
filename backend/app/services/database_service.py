@@ -153,10 +153,14 @@ class DatabaseService:
     
     def get_youtube_uploads(self, limit: int = 10) -> List[Dict]:
         """Get recent YouTube uploads with video data."""
-        result = self.client.table("youtube_uploads").select(
-            "*, videos(title, video_url, thumbnail_url)"
-        ).order("created_at", desc=True).limit(limit).execute()
-        return result.data or []
+        try:
+            result = self.client.table("youtube_uploads").select(
+                "*, videos(title, video_url, thumbnail_url)"
+            ).order("created_at", desc=True).limit(limit).execute()
+            return result.data or []
+        except Exception as e:
+            logger.error(f"Failed to get YouTube uploads: {e}")
+            return []
     
     def update_youtube_stats(self, youtube_id: str, views: int, likes: int, comments: int) -> None:
         """Update YouTube video stats."""
@@ -213,13 +217,21 @@ class DatabaseService:
     
     def get_pipeline_runs(self, limit: int = 10) -> List[Dict]:
         """Get recent pipeline runs."""
-        result = self.client.table("pipeline_runs").select("*").order("created_at", desc=True).limit(limit).execute()
-        return result.data or []
+        try:
+            result = self.client.table("pipeline_runs").select("*").order("created_at", desc=True).limit(limit).execute()
+            return result.data or []
+        except Exception as e:
+            logger.error(f"Failed to get pipeline runs: {e}")
+            return []
     
     def get_latest_pipeline_run(self) -> Optional[Dict]:
         """Get the most recent pipeline run."""
-        result = self.client.table("pipeline_runs").select("*").order("created_at", desc=True).limit(1).execute()
-        return result.data[0] if result.data else None
+        try:
+            result = self.client.table("pipeline_runs").select("*").order("created_at", desc=True).limit(1).execute()
+            return result.data[0] if result.data else None
+        except Exception as e:
+            logger.error(f"Failed to get latest pipeline run: {e}")
+            return None
     
     # =========================================================================
     # DASHBOARD STATS
@@ -227,33 +239,42 @@ class DatabaseService:
     
     def get_dashboard_stats(self) -> Dict[str, Any]:
         """Get aggregated stats for dashboard."""
-        # Total videos
-        videos_result = self.client.table("videos").select("id", count="exact").execute()
-        total_videos = videos_result.count or 0
-        
-        # Total views (sum from youtube_uploads)
-        uploads_result = self.client.table("youtube_uploads").select("views").execute()
-        total_views = sum(u.get("views", 0) for u in (uploads_result.data or []))
-        
-        # Videos this week
-        week_ago = (datetime.utcnow().date().isoformat())
-        week_videos = self.client.table("videos").select("id", count="exact").gte("created_at", week_ago).execute()
-        videos_this_week = week_videos.count or 0
-        
-        # Content type distribution
-        content_mix = self.client.table("topics").select("content_type").execute()
-        mix = {"sales_tip": 0, "ai_news": 0, "hot_take": 0, "product_showcase": 0}
-        for t in (content_mix.data or []):
-            ct = t.get("content_type", "sales_tip")
-            if ct in mix:
-                mix[ct] += 1
-        
-        return {
-            "total_videos": total_videos,
-            "total_views": total_views,
-            "videos_this_week": videos_this_week,
-            "content_mix": mix,
-        }
+        try:
+            # Total videos
+            videos_result = self.client.table("videos").select("id", count="exact").execute()
+            total_videos = videos_result.count or 0
+            
+            # Total views (sum from youtube_uploads)
+            uploads_result = self.client.table("youtube_uploads").select("views").execute()
+            total_views = sum(u.get("views", 0) for u in (uploads_result.data or []))
+            
+            # Videos this week
+            week_ago = (datetime.utcnow().date().isoformat())
+            week_videos = self.client.table("videos").select("id", count="exact").gte("created_at", week_ago).execute()
+            videos_this_week = week_videos.count or 0
+            
+            # Content type distribution - dynamically count all types
+            content_mix_result = self.client.table("topics").select("content_type").execute()
+            mix: Dict[str, int] = {}
+            for t in (content_mix_result.data or []):
+                ct = t.get("content_type", "unknown")
+                mix[ct] = mix.get(ct, 0) + 1
+            
+            return {
+                "total_videos": total_videos,
+                "total_views": total_views,
+                "videos_this_week": videos_this_week,
+                "content_mix": mix,
+            }
+        except Exception as e:
+            logger.error(f"Failed to get dashboard stats: {e}")
+            # Return safe defaults instead of crashing
+            return {
+                "total_videos": 0,
+                "total_views": 0,
+                "videos_this_week": 0,
+                "content_mix": {},
+            }
     
     # =========================================================================
     # CONTENT PIPELINE VIEW

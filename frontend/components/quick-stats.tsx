@@ -69,6 +69,11 @@ export function QuickStats() {
     fetchStats();
   }, []);
 
+  // Count total content items from content_mix
+  const totalContent = stats?.content_mix 
+    ? Object.values(stats.content_mix).reduce((a, b) => a + b, 0) 
+    : 0;
+
   const statCards = [
     {
       title: "Total Videos",
@@ -85,17 +90,17 @@ export function QuickStats() {
       icon: <Eye className="w-5 h-5" />,
     },
     {
-      title: "Sales Tips",
-      value: stats?.content_mix?.sales_tip?.toString() || "0",
-      change: "Content type",
-      changeType: "neutral" as const,
+      title: "Topics Generated",
+      value: totalContent.toString(),
+      change: "Total content ideas",
+      changeType: totalContent > 0 ? "up" as const : "neutral" as const,
       icon: <TrendingUp className="w-5 h-5" />,
     },
     {
-      title: "AI News",
-      value: stats?.content_mix?.ai_news?.toString() || "0",
-      change: "Content type",
-      changeType: "neutral" as const,
+      title: "This Week",
+      value: stats?.videos_this_week?.toString() || "0",
+      change: "Videos created",
+      changeType: (stats?.videos_this_week || 0) > 0 ? "up" as const : "neutral" as const,
       icon: <PlayCircle className="w-5 h-5" />,
     },
   ];
