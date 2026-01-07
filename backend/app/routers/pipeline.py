@@ -1,6 +1,7 @@
 """
 Pipeline Router - Trigger and monitor content pipelines.
 """
+from datetime import datetime, timedelta
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from loguru import logger
@@ -13,6 +14,7 @@ from app.services.tts_service import TTSService
 from app.services.video_service import VideoService
 from app.services.render_service import RenderService
 from app.services.youtube_service import YouTubeService
+from app.services.database_service import DatabaseService
 
 
 router = APIRouter()
@@ -107,4 +109,75 @@ async def get_pipeline_status():
             "signing_key_configured": bool(settings.inngest_signing_key),
         }
     }
+
+
+@router.post("/runs/{run_id}/complete")
+async def mark_run_completed(run_id: str):
+    """
+    Manually mark a stuck run as completed.
+    Use this when a run succeeded but status wasn't updated due to network issues.
+    """
+    try:
+        db = DatabaseService()
+        db.update_pipeline_run(run_id, status="completed")
+        return {"status": "success", "message": f"Run {run_id} marked as completed"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/runs/{run_id}/fail")
+async def mark_run_failed(run_id: str):
+    """
+    Manually mark a stuck run as failed.
+    """
+    try:
+        db = DatabaseService()
+        db.update_pipeline_run(run_id, status="failed")
+        return {"status": "success", "message": f"Run {run_id} marked as failed"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/cleanup-stuck-runs")
+async def cleanup_stuck_runs():
+    """
+    Clean up stuck runs that have been running for more than 10 minutes.
+    Marks them as 'failed' with an appropriate error message.
+    """
+    try:
+        db = DatabaseService()
+        # Get all running runs
+        runs = db.get_pipeline_runs(limit=50)
+        
+        stuck_count = 0
+        for run in runs:
+            if run.get("status") == "running":
+                # Check if it's been running for more than 10 minutes
+                started_at = run.get("started_at")
+                if started_at:
+                    # Parse ISO format timestamp
+                    try:
+                        if isinstance(started_at, str):
+                            started = datetime.fromisoformat(started_at.replace("Z", "+00:00"))
+                        else:
+                            started = started_at
+                        
+                        now = datetime.now(started.tzinfo) if started.tzinfo else datetime.utcnow()
+                        if (now - started) > timedelta(minutes=10):
+                            db.update_pipeline_run(
+                                run.get("id"), 
+                                status="failed",
+                                errors=["Run timed out or was interrupted"]
+                            )
+                            stuck_count += 1
+                    except Exception as e:
+                        logger.error(f"Error parsing timestamp for run {run.get('id')}: {e}")
+        
+        return {
+            "status": "success", 
+            "message": f"Cleaned up {stuck_count} stuck runs",
+            "stuck_runs_fixed": stuck_count
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
