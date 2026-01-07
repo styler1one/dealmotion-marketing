@@ -89,41 +89,60 @@ STRUCTUUR (8 seconden):
 
 ---
 
-VOORBEELDEN:
+VOORBEELDEN (4 segmenten, 25-30 woorden totaal):
 
 **Research Hell:**
-"Je googlet weer. LinkedIn. Website. Nieuws. Twintig minuten later weet je nog steeds niet wat je moet zeggen."
-(19 woorden)
+Segment 1: "Je googlet weer."
+Segment 2: "LinkedIn. Website. Nog een LinkedIn. Twintig tabs open."
+Segment 3: "Twintig minuten later. Geen idee wat je moet zeggen."
+Segment 4: "Morgen begin je opnieuw."
+(26 woorden)
 
 **Ignored Outreach:**
-"Hey [voornaam], ik zag dat jullie... Versturen. Wachten. Niks. Net als de vorige vijftig."
-(15 woorden)
+Segment 1: "Hey voornaam, ik zag dat jullie..."
+Segment 2: "Copy. Paste. Versturen."
+Segment 3: "Wachten. Checken. Niks."
+Segment 4: "Net als de vorige vijftig keer."
+(23 woorden)
 
 **Unprepared:**
-"De call begint zo. Je opent LinkedIn. Scrolt. Wie was dit ook alweer? De call begint."
-(16 woorden)
+Segment 1: "Over vijf minuten begint je call."
+Segment 2: "Je opent LinkedIn. Scrolt."
+Segment 3: "Wie was dit ook alweer?"
+Segment 4: "Te laat. De call begint."
+(24 woorden)
 
 **Note-taking:**
-"Je typt mee. De klant zegt iets. Je typt door. Wat zei hij ook alweer?"
-(14 woorden)
+Segment 1: "Je typt mee tijdens de call."
+Segment 2: "De klant zegt iets belangrijks."
+Segment 3: "Maar je was aan het typen."
+Segment 4: "Wat zei hij ook alweer?"
+(25 woorden)
 
 **Slow follow-up:**
-"Goede meeting. Je stuurt morgen een follow-up. Morgen wordt volgende week. Het momentum is weg."
-(15 woorden)
+Segment 1: "Goede meeting gehad."
+Segment 2: "Je stuurt morgen een follow-up. Morgen wordt overmorgen."
+Segment 3: "Overmorgen wordt volgende week."
+Segment 4: "Het momentum is weg."
+(24 woorden)
 
 **No feedback:**
-"Honderd calls dit jaar. Dezelfde aanpak. Dezelfde resultaten. Niemand die zegt wat je fout doet."
-(15 woorden)
+Segment 1: "Honderd calls dit jaar."
+Segment 2: "Dezelfde aanpak. Dezelfde fouten."
+Segment 3: "Dezelfde resultaten."
+Segment 4: "Niemand die zegt wat je fout doet."
+(25 woorden)
 
 ---
 
 REGELS:
 
-- 15-20 woorden MAXIMUM
+- 25-30 woorden (8 seconden = ~28 woorden bij normaal tempo)
 - Korte zinnen (max 6 woorden)
 - Herhaling mag ("Je typt. Je mist. Je typt.")
 - Spreektaal, geen schrijftaal
 - Eindig met de steek, niet met hoop
+- SPLIT in 4 segmenten voor ondertiteling
 
 TOON:
 - Droog, niet dramatisch
@@ -143,35 +162,45 @@ VERBODEN:
 OUTPUT (JSON):
 
 {
-  "title": "Titel van de video",
-  "full_text": "Het complete script",
+  "title": "Korte titel",
+  "full_text": "Alle 4 segmenten achter elkaar",
   "segments": [
-    {"part": "observation", "text": "..."},
-    {"part": "friction", "text": "..."},
-    {"part": "reframe", "text": "..."}
+    {"text": "Segment 1 - Hook (0-2 sec)"},
+    {"text": "Segment 2 - Beeld (2-4 sec)"},
+    {"text": "Segment 3 - Verdieping (4-6 sec)"},
+    {"text": "Segment 4 - Steek (6-8 sec)"}
   ],
-  "total_word_count": 70,
-  "total_duration_seconds": 28
-}"""
+  "total_word_count": 25,
+  "total_duration_seconds": 8
+}
+
+BELANGRIJK: Precies 4 segmenten! Elk segment = 2 seconden ondertitel."""
 
     def _build_user_prompt(self, topic: dict, target_duration: int) -> str:
-        # Video is 8 seconds, so script must be ~20 words max
-        word_count = min(25, int(target_duration * 2.5))
-        
-        return f"""Schrijf een ZEER KORT script voor deze video:
+        return f"""Schrijf een 8-seconden script met PRECIES 4 segmenten:
+
+PIJN TYPE: {topic.get('pain_type', topic.get('content_type', 'research_hell'))}
 
 TITEL: {topic.get('title', '')}
 
-OBSERVATIE: {topic.get('core_observation', topic.get('hook', ''))}
+HOOK: {topic.get('hook', '')}
 
-WAT VERKOPERS DENKEN: {topic.get('false_belief', '')}
+SCENE: {topic.get('scene', topic.get('core_observation', ''))}
 
-REFRAME: {topic.get('reframing', '')}
+STEEK: {topic.get('sting', topic.get('cta', ''))}
 
-KRITIEK: Maximum {word_count} woorden! De video is maar 8 seconden.
-Dat is 3-4 korte zinnen, niet meer.
+---
 
-JSON output."""
+Schrijf 4 segmenten van elk ~6 woorden.
+Totaal: 25-30 woorden = 8 seconden audio.
+
+Elk segment = 2 seconden ondertitel.
+Segment 1 = Hook (pakt aandacht)
+Segment 2 = Beeld (concreet moment)  
+Segment 3 = Verdieping (meer detail)
+Segment 4 = Steek (pijnlijke waarheid)
+
+JSON output. Geen uitleg."""
 
     def _parse_script(self, content: str, topic: dict) -> dict:
         content = content.strip()
