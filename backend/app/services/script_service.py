@@ -26,7 +26,7 @@ class ScriptService:
         self,
         topic: dict,
         language: str = "nl",
-        target_duration: int = 30
+        target_duration: int = 8  # Video is 8 seconds
     ) -> dict:
         """Generate a video script from a topic."""
         logger.info(f"Generating script for: {topic.get('title', 'Unknown')}")
@@ -70,60 +70,40 @@ Je laat de gedachte hangen. De kijker denkt zelf verder.
 
 ---
 
-VOORBEELD SCRIPT:
+VOORBEELD SCRIPT (8 seconden = 20 woorden):
 
-Titel: "Waarom de drukste deals vaak doodlopen"
+Titel: "Waarom drukke deals doodlopen"
 
-"Ik zie het steeds weer.
-Een deal met twintig meetings. Eindeloos heen en weer.
+"Veel meetings. Eindeloos heen en weer.
 En dan... niks.
-
-Terwijl andere deals. Drie gesprekken. Klaar.
-
-We denken: veel activiteit is goed.
-Maar kopers die twijfelen, maken ook veel lawaai.
-Ze stellen vragen. Vragen meetings aan. Betrekken collega's.
-Niet omdat ze willen kopen. Maar omdat ze niet durven te zeggen: nee.
-
 Drukte voelt als voortgang.
 Maar het is vaak precies het tegenovergestelde."
 
-(72 woorden, ~30 seconden)
+(20 woorden, ~8 seconden)
 
 ---
 
-VOORBEELD SCRIPT 2:
+VOORBEELD SCRIPT 2 (8 seconden = 22 woorden):
 
-Titel: "De klant zegt ja, maar doet niks"
+Titel: "De klant zegt ja maar doet niks"
 
-"Alles lijkt goed.
-De demo ging geweldig. Ze waren enthousiast.
-'We gaan dit intern bespreken.'
-
+"De demo ging geweldig. Ze waren enthousiast.
 En dan... stilte.
-
-Ik heb lang gedacht: dat ben ik. Ik doe iets fout.
-Maar dat is het niet.
-
-Aardige mensen zeggen ja om van je af te zijn.
-Ze willen je niet teleurstellen.
-Dus doen ze alsof.
-
 Enthousiasme is geen commitment.
-Een positieve klant is niet hetzelfde als een kopende klant."
+Aardige mensen zijn niet altijd kopers."
 
-(65 woorden, ~27 seconden)
+(22 woorden, ~9 seconden)
 
 ---
 
 REGELS:
 
-- Maximum 80 woorden
-- Korte zinnen (max 10 woorden per zin)
+- Maximum 20-25 woorden (dit is KRITIEK - video is maar 8 seconden!)
+- 8 seconden = 20 woorden = 3-4 korte zinnen
+- Korte zinnen (max 8 woorden per zin)
 - Spreektaal, geen schrijftaal
 - Geen vragen aan de kijker
 - Geen "je moet" of tips
-- Geen opsommingen
 - Eindig open, niet met een conclusie
 
 VERBODEN:
@@ -150,7 +130,10 @@ OUTPUT (JSON):
 }"""
 
     def _build_user_prompt(self, topic: dict, target_duration: int) -> str:
-        return f"""Schrijf een script voor deze video:
+        # Video is 8 seconds, so script must be ~20 words max
+        word_count = min(25, int(target_duration * 2.5))
+        
+        return f"""Schrijf een ZEER KORT script voor deze video:
 
 TITEL: {topic.get('title', '')}
 
@@ -160,14 +143,8 @@ WAT VERKOPERS DENKEN: {topic.get('false_belief', '')}
 
 REFRAME: {topic.get('reframing', '')}
 
-OPENING: {topic.get('opening_line', topic.get('hook', ''))}
-
-SLUITING: {topic.get('closing_line', '')}
-
-Doel: {target_duration} seconden (~{int(target_duration * 2.5)} woorden)
-
-Schrijf alsof je dit tegen één persoon zegt.
-Rustig. Geen haast.
+KRITIEK: Maximum {word_count} woorden! De video is maar 8 seconden.
+Dat is 3-4 korte zinnen, niet meer.
 
 JSON output."""
 

@@ -150,7 +150,7 @@ OUTPUT (JSON):
   "reframing": "Hoe het anders bekeken kan worden",
   "opening_line": "Eerste zin van de video - herkenbaar",
   "closing_line": "Laatste zin - geen conclusie, laat het open",
-  "estimated_duration_seconds": 30
+  "estimated_duration_seconds": 8
 }}"""
 
     def _build_user_prompt(self, content_type: Optional[ContentType], count: int, language: str) -> str:
