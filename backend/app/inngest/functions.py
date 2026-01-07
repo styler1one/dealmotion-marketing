@@ -208,14 +208,15 @@ async def generate_video_fn(ctx: inngest.Context) -> dict:
     logger.info("✨ Step 3: Rendering final video with captions...")
     
     # Extract text segments for Creatomate (4 scenes max)
-    segments = script.get("segments", [])
-    texts = [seg.get("text", "") for seg in segments[:4]]
+    # Note: Inngest step results may not support Python slicing, so convert to list first
+    segments = list(script.get("segments", []) or [])
+    texts = [seg.get("text", "") if isinstance(seg, dict) else str(seg) for seg in segments[:4]]
     
     # If no segments, split full_text into 4 parts
     if not texts or all(t == "" for t in texts):
-        full_text = script.get("full_text", "")
+        full_text = script.get("full_text", "") or ""
         words = full_text.split()
-        chunk_size = len(words) // 4 + 1
+        chunk_size = max(1, len(words) // 4)
         texts = [
             " ".join(words[i:i+chunk_size]) 
             for i in range(0, len(words), chunk_size)
@@ -443,9 +444,11 @@ async def test_full_pipeline_fn(ctx: inngest.Context) -> dict:
     logger.info(f"🎥 Background: {background_url}")
     
     # Step 5: Render final video
-    texts = [seg.get("text", "") for seg in script.get("segments", [])[:4]]
-    if not texts:
-        full_text = script.get("full_text", "")
+    # Note: Inngest step results may not support Python slicing, so extract list first
+    segments = list(script.get("segments", []) or [])
+    texts = [seg.get("text", "") if isinstance(seg, dict) else str(seg) for seg in segments[:4]]
+    if not texts or all(t == "" for t in texts):
+        full_text = script.get("full_text", "") or ""
         words = full_text.split()
         chunk_size = max(1, len(words) // 4)
         texts = [" ".join(words[i:i+chunk_size]) for i in range(0, len(words), chunk_size)][:4]
