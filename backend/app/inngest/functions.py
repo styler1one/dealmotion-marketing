@@ -358,14 +358,24 @@ async def upload_to_youtube_fn(ctx: inngest.Context) -> dict:
 async def test_full_pipeline_fn(ctx: inngest.Context) -> dict:
     """
     Test the complete pipeline with a sample topic.
+    Saves all results to database for dashboard visibility.
     
     Trigger via Inngest dashboard or API:
     POST /api/inngest with event: marketing/test.full-pipeline
     """
     step = ctx.step
+    db = DatabaseService()
     logger.info("🧪 === Starting Full Pipeline Test ===")
     
     settings = get_settings()
+    
+    # Create pipeline run record
+    pipeline_run = await step.run(
+        "test-create-pipeline-run",
+        lambda: db.create_pipeline_run()
+    )
+    run_id = pipeline_run.get("id")
+    logger.info(f"📊 Pipeline run created: {run_id}")
     
     # Step 1: Generate 1 topic
     topics = await step.run(
@@ -376,11 +386,25 @@ async def test_full_pipeline_fn(ctx: inngest.Context) -> dict:
         "id": "test-topic",
         "title": "Cold Calling is Dood",
         "hook": "Cold calling werkt niet meer. Dit wel.",
-        "main_points": ["Moderne buyers doen research", "AI helpt je de juiste timing te vinden", "Focus op waarde, niet pushen"],
+        "main_points": ["Moderne buyers doen research"],
         "cta": "Start gratis met DealMotion",
-        "hashtags": ["sales", "coldcalling", "AI", "B2B"]
+        "hashtags": ["sales", "coldcalling", "AI", "B2B"],
+        "content_type": "hot_take"
     }
     logger.info(f"📝 Topic: {topic.get('title')}")
+    
+    # Save topic to database
+    saved_topic = await step.run(
+        "test-save-topic",
+        lambda: db.create_topic(topic)
+    )
+    topic_id = saved_topic.get("id")
+    
+    # Update pipeline run
+    await step.run(
+        "test-update-run-topics",
+        lambda: db.update_pipeline_run(run_id, topics_generated=1)
+    )
     
     # Step 2: Generate script
     script = await step.run(
@@ -388,6 +412,19 @@ async def test_full_pipeline_fn(ctx: inngest.Context) -> dict:
         lambda: ScriptService().generate_script(topic)
     )
     logger.info(f"📜 Script generated ({len(script.get('full_text', ''))} chars)")
+    
+    # Save script to database
+    saved_script = await step.run(
+        "test-save-script",
+        lambda: db.create_script(script, topic_id)
+    )
+    script_id = saved_script.get("id")
+    
+    # Update pipeline run
+    await step.run(
+        "test-update-run-scripts",
+        lambda: db.update_pipeline_run(run_id, scripts_generated=1)
+    )
     
     # Step 3: Generate audio
     audio_result = await step.run(
@@ -426,27 +463,69 @@ async def test_full_pipeline_fn(ctx: inngest.Context) -> dict:
     final_url = render_result.get("video_url")
     logger.info(f"✨ Final video: {final_url}")
     
+    # Save video to database
+    title = script.get("title", topic.get("title"))
+    video_record = await step.run(
+        "test-save-video",
+        lambda: db.create_video(
+            title=title,
+            script_id=script_id,
+            video_url=final_url,
+            audio_url=audio_url,
+            duration_seconds=script.get("total_duration_seconds", 25)
+        )
+    )
+    video_db_id = video_record.get("id")
+    
+    # Update pipeline run
+    await step.run(
+        "test-update-run-videos",
+        lambda: db.update_pipeline_run(run_id, videos_created=1)
+    )
+    
     # Step 6: Upload to YouTube (unlisted for testing)
     youtube_result = await step.run(
         "test-upload-youtube",
         lambda: YouTubeService().upload_video(
             video_url=final_url,
-            title=script.get("title", topic.get("title")),
+            title=title,
             description=script.get("description", "Test video"),
             tags=topic.get("hashtags", []),
             privacy_status="unlisted"  # Unlisted for testing
         )
     )
-    logger.info(f"📺 YouTube: {youtube_result.get('youtube_url')}")
+    youtube_id = youtube_result.get("youtube_id")
+    youtube_url = youtube_result.get("youtube_url")
+    logger.info(f"📺 YouTube: {youtube_url}")
+    
+    # Save YouTube upload to database
+    await step.run(
+        "test-save-youtube-upload",
+        lambda: db.create_youtube_upload(
+            video_id=video_db_id,
+            youtube_id=youtube_id,
+            youtube_url=youtube_url,
+            title=title,
+            description=script.get("description", ""),
+            tags=topic.get("hashtags", [])
+        )
+    )
+    
+    # Update pipeline run - completed
+    await step.run(
+        "test-complete-pipeline-run",
+        lambda: db.update_pipeline_run(run_id, status="completed", videos_uploaded=1)
+    )
     
     logger.info("🎉 === Full Pipeline Test Complete! ===")
     
     return {
         "status": "success",
+        "run_id": run_id,
         "topic": topic.get("title"),
         "audio_url": audio_url,
         "background_video_url": background_url,
         "final_video_url": final_url,
-        "youtube_url": youtube_result.get("youtube_url"),
-        "youtube_id": youtube_result.get("youtube_id"),
+        "youtube_url": youtube_url,
+        "youtube_id": youtube_id,
     }
