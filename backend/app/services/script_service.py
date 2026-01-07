@@ -89,49 +89,49 @@ STRUCTUUR (8 seconden):
 
 ---
 
-VOORBEELDEN (4 segmenten, 25-30 woorden totaal):
+VOORBEELDEN (PIJN → CONTRAST structuur):
 
 **Research Hell:**
-Segment 1: "Je googlet weer."
-Segment 2: "LinkedIn. Website. Nog een LinkedIn. Twintig tabs open."
-Segment 3: "Twintig minuten later. Geen idee wat je moet zeggen."
-Segment 4: "Morgen begin je opnieuw."
-(26 woorden)
+Segment 1: "Je googlet weer. Twintig tabs."
+Segment 2: "Twintig minuten later: nog steeds niks."
+Segment 3: "Of: je typt de bedrijfsnaam."
+Segment 4: "Dertig seconden later heb je alles."
+(25 woorden)
 
 **Ignored Outreach:**
 Segment 1: "Hey voornaam, ik zag dat jullie..."
-Segment 2: "Copy. Paste. Versturen."
-Segment 3: "Wachten. Checken. Niks."
-Segment 4: "Net als de vorige vijftig keer."
-(23 woorden)
+Segment 2: "Copy. Paste. Geen reactie."
+Segment 3: "Of: een bericht dat echt persoonlijk is."
+Segment 4: "Gebaseerd op wat je al weet."
+(26 woorden)
 
 **Unprepared:**
-Segment 1: "Over vijf minuten begint je call."
-Segment 2: "Je opent LinkedIn. Scrolt."
-Segment 3: "Wie was dit ook alweer?"
-Segment 4: "Te laat. De call begint."
-(24 woorden)
+Segment 1: "De call begint over twee minuten."
+Segment 2: "Je opent snel LinkedIn. Scrolt."
+Segment 3: "Of: je opent je voorbereiding."
+Segment 4: "Alles staat er al. Namen, context, vragen."
+(27 woorden)
 
 **Note-taking:**
 Segment 1: "Je typt mee tijdens de call."
-Segment 2: "De klant zegt iets belangrijks."
-Segment 3: "Maar je was aan het typen."
-Segment 4: "Wat zei hij ook alweer?"
+Segment 2: "De klant zegt iets. Je mist het."
+Segment 3: "Of: je luistert gewoon."
+Segment 4: "Alles wordt voor je vastgelegd."
 (25 woorden)
 
 **Slow follow-up:**
 Segment 1: "Goede meeting gehad."
-Segment 2: "Je stuurt morgen een follow-up. Morgen wordt overmorgen."
-Segment 3: "Overmorgen wordt volgende week."
-Segment 4: "Het momentum is weg."
+Segment 2: "Volgende week stuur je pas je follow-up."
+Segment 3: "Of: dezelfde dag nog."
+Segment 4: "Klaar om te versturen. Zonder moeite."
 (24 woorden)
 
 **No feedback:**
 Segment 1: "Honderd calls dit jaar."
-Segment 2: "Dezelfde aanpak. Dezelfde fouten."
-Segment 3: "Dezelfde resultaten."
-Segment 4: "Niemand die zegt wat je fout doet."
-(25 woorden)
+Segment 2: "Dezelfde fouten. Niemand die het zegt."
+Segment 3: "Of: na elke call feedback."
+Segment 4: "Concreet. Wat ging goed. Wat beter kan."
+(26 woorden)
 
 ---
 
@@ -195,10 +195,47 @@ Schrijf 4 segmenten van elk ~6 woorden.
 Totaal: 25-30 woorden = 8 seconden audio.
 
 Elk segment = 2 seconden ondertitel.
-Segment 1 = Hook (pakt aandacht)
-Segment 2 = Beeld (concreet moment)  
-Segment 3 = Verdieping (meer detail)
-Segment 4 = Steek (pijnlijke waarheid)
+
+STRUCTUUR: PIJN → CONTRAST (before/after zonder product te noemen)
+
+Segment 1 = HOOK - De herkenbare pijn (pakt aandacht)
+Segment 2 = BEELD - Meer detail van de pijn
+Segment 3 = SWITCH - "Of:" / "Maar stel:" / "Er zijn ook mensen die:"
+Segment 4 = VISIE - Hoe het er WEL uitziet (zonder tool te noemen)
+
+DE KIJKER MOET BEIDE WERELDEN ZIEN:
+- Wereld A: Hun huidige realiteit (herkenbaar, pijnlijk)
+- Wereld B: Hoe het kan zijn (aantrekkelijk, moeiteloos)
+
+VOORBEELD UNPREPARED MEETINGS:
+Segment 1: "De call begint over twee minuten."
+Segment 2: "Je opent snel LinkedIn. Scrolt door hun profiel."
+Segment 3: "Of: je opent je voorbereiding."
+Segment 4: "Alles staat er al. Namen, context, gesprekspunten."
+
+VOORBEELD RESEARCH HELL:
+Segment 1: "Je googlet weer. Twintig tabs open."
+Segment 2: "Twintig minuten later: nog steeds niks."
+Segment 3: "Of: je typt de bedrijfsnaam."
+Segment 4: "Dertig seconden later heb je alles."
+
+VOORBEELD NOTE-TAKING:
+Segment 1: "Je typt mee tijdens de call."
+Segment 2: "De klant zegt iets. Je mist het."
+Segment 3: "Of: je luistert gewoon."
+Segment 4: "Alles wordt voor je vastgelegd."
+
+DE SWITCH-WOORDEN:
+- "Of:"
+- "Maar stel je voor:"
+- "Er zijn ook mensen die:"
+- "Het kan ook zo:"
+
+VERBODEN:
+- Productnamen, tools, of apps noemen
+- "Met [product] kun je..."
+- CTA's of links
+- Uitleggen HOE het werkt (alleen LATEN ZIEN dat het bestaat)
 
 JSON output. Geen uitleg."""
 

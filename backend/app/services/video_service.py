@@ -230,102 +230,83 @@ class VideoService:
     
     def _get_scene_variety(self) -> List[str]:
         """
-        Scene prompts matching the 6 DealMotion pain points.
-        Visual storytelling of B2B sales frustration.
+        Scene prompts: 2 PAIN scenes + 2 CONTRAST scenes.
+        First 2 clips = the problem (frustration)
+        Last 2 clips = the better way (calm, prepared, in control)
         """
-        scenes = [
-            # RESEARCH HELL scenes
+        # PAIN SCENES (clips 1-2: the frustrating reality)
+        pain_scenes = [
             """Cinematic vertical video (9:16), 2 seconds.
-            Person at laptop, multiple browser tabs visible. Scrolling LinkedIn.
-            Slight frustration, hand on forehead. Looking but not finding.
-            The endless search for information that isn't there.
-            Style: Blue screen glow on face, dark room, late hour feeling.
-            Camera: Over-shoulder showing screen chaos, then face.""",
+            Person at laptop, multiple browser tabs visible. Scrolling frantically.
+            Frustration, hand on forehead. Looking but not finding.
+            FEELING: Stressed, overwhelmed, wasting time.
+            Style: Blue screen glow, dark room, chaotic energy.
+            Camera: Over-shoulder showing messy tabs, frustrated face.""",
             
             """Cinematic vertical video (9:16), 2 seconds.
-            Close-up of hands typing search query. Google results.
-            Scrolling, clicking, back button. Repeat.
-            The hamster wheel of prospect research.
-            Style: Screen light, focused but frustrated.
-            Camera: Tight on hands and screen.""",
-            
-            # IGNORED OUTREACH scenes
-            """Cinematic vertical video (9:16), 2 seconds.
-            Phone notification - LinkedIn message sent. Then nothing.
-            Person waiting, checking, still nothing.
-            The silence after sending.
-            Style: Clean, modern, slightly cold.
-            Camera: Phone screen, then reaction face.""",
+            Clock showing minutes ticking. Person scrambling.
+            Opening LinkedIn last-minute. Panic in the eyes.
+            FEELING: Unprepared, rushing, anxious.
+            Style: Tense, rushed, ring light harsh.
+            Camera: Clock, then frantic scrolling.""",
             
             """Cinematic vertical video (9:16), 2 seconds.
-            Typing a message, selecting text, deleting.
-            Starting over. Same template.
-            The copy-paste grind of outreach.
-            Style: Close, intimate, repetitive motion.
-            Camera: Hands typing, slight sigh.""",
-            
-            # UNPREPARED MEETINGS scenes
-            """Cinematic vertical video (9:16), 2 seconds.
-            Clock showing 5 minutes to meeting. Person scrambling.
-            Opening LinkedIn frantically. Who is this person?
-            The panic before an unprepared call.
-            Style: Tense, rushed, slight sweat.
-            Camera: Clock, then frantic screen search.""",
+            Person typing during a call, head down, not listening.
+            Missing what's being said. Distracted.
+            FEELING: Divided attention, missing important stuff.
+            Style: Screen glow, disconnected energy.
+            Camera: Hands typing, then confused look up.""",
             
             """Cinematic vertical video (9:16), 2 seconds.
-            Video call loading screen. Person adjusting quickly.
-            Last second check of notes. Blank page.
-            The moment before you wing it.
-            Style: Ring light harsh, nervous energy.
-            Camera: Face, then empty notes.""",
-            
-            # NOTE-TAKING TRAP scenes
-            """Cinematic vertical video (9:16), 2 seconds.
-            Split focus: person typing notes while someone talks (implied).
-            Missing eye contact. Head down. Typing fast.
-            Present but not really there.
-            Style: Screen glow, distracted energy.
-            Camera: Hands typing, then confused face.""",
-            
-            """Cinematic vertical video (9:16), 2 seconds.
-            Looking up from notes. Pause. What did they just say?
-            The moment you realize you missed something important.
-            Style: Natural office light, slight embarrassment.
-            Camera: Close on face, recognition of mistake.""",
-            
-            # SLOW FOLLOW-UP scenes
-            """Cinematic vertical video (9:16), 2 seconds.
-            Calendar showing days passing. Monday, Tuesday, Wednesday...
-            Unopened email draft. "Follow up on our meeting"
-            The procrastination of post-meeting action.
-            Style: Time passing, guilt building.
-            Camera: Calendar dates, then untouched laptop.""",
-            
-            """Cinematic vertical video (9:16), 2 seconds.
-            Finally opening laptop to write follow-up. Hesitation.
-            What was it we talked about again?
-            Too much time has passed.
-            Style: Dim evening light, low energy.
-            Camera: Hands on keyboard, not typing.""",
-            
-            # NO FEEDBACK scenes
-            """Cinematic vertical video (9:16), 2 seconds.
-            End of another call. Hanging up. Alone.
-            No debrief. No coaching. Just the next call.
-            The isolation of sales work.
-            Style: Empty office, solo desk, quiet.
-            Camera: Person alone after call ends.""",
-            
-            """Cinematic vertical video (9:16), 2 seconds.
-            Looking at CRM pipeline. Same numbers. Same approach.
-            What am I doing wrong? No one to ask.
-            The plateau without feedback.
-            Style: Screen data, confused expression.
-            Camera: Data on screen, then questioning face.""",
+            Staring at blank email draft. Days have passed.
+            What did we even talk about?
+            FEELING: Guilt, procrastination, lost momentum.
+            Style: Dim light, low energy.
+            Camera: Empty screen, then tired face.""",
         ]
         
-        random.shuffle(scenes)
-        return scenes
+        # CONTRAST SCENES (clips 3-4: the better way)
+        contrast_scenes = [
+            """Cinematic vertical video (9:16), 2 seconds.
+            Person calmly looking at a clean, organized screen.
+            All information already there. Slight confident smile.
+            FEELING: Prepared, calm, in control.
+            Style: Warm natural light, clean desk, relaxed posture.
+            Camera: Clean screen with info, then confident face.""",
+            
+            """Cinematic vertical video (9:16), 2 seconds.
+            Before a meeting: person relaxed, reviewing a brief.
+            Everything they need is ready. No rush.
+            FEELING: Confident, professional, ready.
+            Style: Bright, organized, calm energy.
+            Camera: Organized notes/screen, satisfied expression.""",
+            
+            """Cinematic vertical video (9:16), 2 seconds.
+            Person in a call, fully engaged, listening intently.
+            Eye contact, nodding, present in the moment.
+            FEELING: Connected, focused, professional.
+            Style: Natural light, engaged body language.
+            Camera: Face fully present, slight smile.""",
+            
+            """Cinematic vertical video (9:16), 2 seconds.
+            Right after a meeting: follow-up already written.
+            One click to send. Done.
+            FEELING: Efficient, on top of things, momentum.
+            Style: Bright, quick, accomplished.
+            Camera: Send button clicked, satisfied lean back.""",
+            
+            """Cinematic vertical video (9:16), 2 seconds.
+            Person reading feedback on their screen after a call.
+            Clear insights. What to improve.
+            FEELING: Growing, learning, supported.
+            Style: Warm light, thoughtful expression.
+            Camera: Feedback on screen, nodding in understanding.""",
+        ]
+        
+        # Return 2 pain + 2 contrast for the 4-clip structure
+        random.shuffle(pain_scenes)
+        random.shuffle(contrast_scenes)
+        return pain_scenes[:2] + contrast_scenes[:2]
     
     def _build_video_prompt(self, script_text: str, style: str) -> str:
         """
