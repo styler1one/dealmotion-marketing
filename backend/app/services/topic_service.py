@@ -64,123 +64,114 @@ class TopicService:
     def _build_system_prompt(self, language: str) -> str:
         return f"""Je maakt topics voor 8-seconden B2B sales video's.
 
-Doel: Stop scrolling. Laat denken. Geen verkoop.
+Doel: Raak de dagelijkse pijn van B2B verkopers. Laat ze voelen: "dit is mijn leven."
+Geen verkoop. Geen oplossing. Alleen de pijn - scherp en herkenbaar.
 
 ---
 
-DE HOOK IS ALLES
+DE 6 PIJNPUNTEN (kies er één per topic):
 
-De eerste 2 seconden bepalen of iemand stopt met scrollen.
-Je opening moet:
-- Iets zeggen wat ze nog niet eerder hoorden
-- Direct hun realiteit raken
-- Prikkelend zijn, maar niet schreeuwerig
-
-GOEDE HOOKS:
-- "Een deal met veel meetings voelt productief."
-- "Je stuurt drie follow-ups. Geen reactie."
-- "Ze waren super enthousiast na de demo."
-
-SLECHTE HOOKS:
-- "Wist je dat..." (saai)
-- "In deze video..." (obvious)
-- "Sales is..." (te algemeen)
+1. RESEARCH HELL
+   De pijn: 30+ minuten googlen per prospect. LinkedIn stalken. Nog steeds niet weten wat je moet zeggen.
+   Hook: "Je googlet weer. Twintig tabs open. En je weet nog steeds niks."
+   
+2. IGNORED OUTREACH  
+   De pijn: Dezelfde LinkedIn boodschap. Copy-paste. Geen reactie. Weer niet.
+   Hook: "Verstuurd. Gelezen. Geen reactie. Net als de vorige 47."
+   
+3. UNPREPARED MEETINGS
+   De pijn: De meeting begint over 5 minuten. Wie zit er aan tafel? Geen idee.
+   Hook: "Over vijf minuten begint je call. Je weet niet eens wie er belt."
+   
+4. NOTE-TAKING TRAP
+   De pijn: Je typt mee. Je mist de helft. De klant zegt iets belangrijks. Je was aan het typen.
+   Hook: "Je typt. Je mist wat hij zegt. Je typt door."
+   
+5. SLOW FOLLOW-UP
+   De pijn: Een week later stuur je je follow-up. Het momentum is weg. De klant is verder.
+   Hook: "Je follow-up komt een week later. Te laat. Altijd te laat."
+   
+6. NO FEEDBACK LOOP
+   De pijn: Je doet hetzelfde. Elke call. Niemand zegt wat je fout doet. Je wordt niet beter.
+   Hook: "Honderd calls. Dezelfde fouten. Niemand die het zegt."
 
 ---
 
-TOPIC STRUCTUUR:
+STRUCTUUR (8 seconden totaal):
 
-1. HOOK - Pakkende opening (wat ze herkennen)
-2. HERKENNING - Concreet beeld van hun realiteit
-3. SHIFT - Andere kijk (geen oplossing, geen advies)
+1. HOOK (0-2 sec) - Herkenbare pijn, direct
+2. BEELD (2-5 sec) - Concreet moment dat ze kennen
+3. STEEK (5-8 sec) - De ongemakkelijke waarheid
 
 ---
 
-TOPIC TYPES:
+VOORBEELDEN:
 
-1. SALES_ILLUSION - overtuiging die niet klopt
-   Hook: "Een drukke pipeline voelt goed."
-   Shift: "Drukte en voortgang zijn niet hetzelfde."
-   
-2. EXECUTION_FAILURE - activiteit zonder resultaat
-   Hook: "Je doet alles goed. En toch loopt het vast."
-   Shift: "Soms is minder doen meer bereiken."
-   
-3. SIGNAL_MISS - verkeerd gelezen signaal
-   Hook: "Ze vroegen om een voorstel."
-   Shift: "Een vraag om info is geen koopsignaal."
-   
-4. SYSTEM_FLAW - proces dat averechts werkt
-   Hook: "Alles staat netjes in Salesforce."
-   Shift: "Registreren is geen verkopen."
-   
-5. DECISION_DYNAMICS - hoe kopers echt beslissen
-   Hook: "De beslisser zei ja."
-   Shift: "Ja zeggen is makkelijker dan nee zeggen."
+**Research Hell:**
+"Je googlet alweer. Twintig minuten later heb je drie LinkedIn posts gelezen en nog steeds geen idee wat je moet zeggen. Morgen weer."
+
+**Ignored Outreach:**
+"Hey [voornaam], ik zag dat jullie... Delete. Net als de rest."
+
+**Unprepared:**
+"De call begint. Je opent snel LinkedIn. Wie is dit ook alweer?"
 
 ---
 
 TOON:
-
-- Rustig, niet opgewonden
-- Collega in een café, niet guru op LinkedIn
-- Constateren, niet preken
-
----
+- Droog, niet dramatisch
+- Herkenbaar, niet overdreven
+- Collega die het hardop zegt
+- Geen oordeel, alleen observatie
 
 NATIVE DUTCH:
-
-Schrijf zoals een Nederlandse sales director praat.
-
-NIET: "Activiteit maskeert het gebrek aan progressie"
-WEL: "Je bent druk. Maar er gebeurt niks."
-
-NIET: "De vraag is niet X, maar Y"
-WEL: "Het gaat niet om X. Het gaat om Y."
-
-Korte zinnen. Max 8 woorden per zin.
-
----
+- Spreektaal, geen schrijftaal
+- Korte zinnen (max 8 woorden)
+- Geen "het feit dat" of "in staat stellen"
 
 VERBODEN:
-- Vragen ("Wist je dat...?")
-- "game changer", "je moet", "snelle tip"
-- Emoji's en uitroeptekens
+- Oplossingen of tips
+- Vragen aan de kijker
+- "Game changer", "je moet"
+- Emoji's, uitroeptekens
+- Productnamen of tools
 
 ---
 
 OUTPUT (JSON):
 
 {{
-  "content_type": "sales_illusion|execution_failure|signal_miss|system_flaw|decision_dynamics",
+  "pain_type": "research_hell|ignored_outreach|unprepared_meetings|note_taking_trap|slow_followup|no_feedback",
   "title": "Korte titel, max 40 tekens",
-  "hook": "Opening zin die aandacht pakt (max 8 woorden)",
-  "core_observation": "Wat je ziet - concreet, herkenbaar",
-  "false_belief": "Wat ze denken (simpel)",
-  "reframing": "Andere kijk (geen oplossing)",
-  "opening_line": "Eerste zin van video = de hook",
-  "closing_line": "Laatste zin - open, geen conclusie",
+  "hook": "Opening die pakt (max 10 woorden)",
+  "scene": "Concreet moment (wat ze zien/voelen)",
+  "sting": "De ongemakkelijke waarheid",
+  "full_script": "Volledige tekst (max 25 woorden)",
   "estimated_duration_seconds": 8
 }}"""
 
     def _build_user_prompt(self, content_type: Optional[ContentType], count: int, language: str) -> str:
-        type_hint = ""
-        if content_type:
-            hints = {
-                ContentType.SALES_ILLUSION: "Focus op een overtuiging in sales die niet klopt.",
-                ContentType.EXECUTION_FAILURE: "Focus op waarom deals vastlopen ondanks veel activiteit.",
-                ContentType.SIGNAL_MISS: "Focus op een signaal dat verkopers verkeerd interpreteren.",
-                ContentType.SYSTEM_FLAW: "Focus op waar systemen/processen averechts werken.",
-                ContentType.DECISION_DYNAMICS: "Focus op hoe kopers echt beslissen."
-            }
-            type_hint = hints.get(content_type, "")
+        # Map old content types to new pain types
+        pain_hints = {
+            ContentType.SALES_ILLUSION: "Focus op RESEARCH HELL - het eindeloze googlen zonder resultaat.",
+            ContentType.EXECUTION_FAILURE: "Focus op SLOW FOLLOW-UP - momentum verliezen door trage opvolging.",
+            ContentType.SIGNAL_MISS: "Focus op IGNORED OUTREACH - berichten die niemand leest.",
+            ContentType.SYSTEM_FLAW: "Focus op NOTE-TAKING TRAP - typen terwijl je de klant mist.",
+            ContentType.DECISION_DYNAMICS: "Focus op UNPREPARED MEETINGS - calls waar je niet klaar voor bent."
+        }
+        
+        type_hint = pain_hints.get(content_type, "") if content_type else ""
+        
+        # If no specific type, pick a random pain
+        if not type_hint:
+            type_hint = "Kies één van de 6 pijnen. Maak het zo specifiek en herkenbaar mogelijk."
         
         return f"""Genereer {count} topic(s).
 
 {type_hint}
 
-Denk aan een concrete situatie die je vaak ziet.
-Iets waarvan verkopers zeggen: "ja, dat herken ik."
+Denk aan een heel concreet moment. Niet abstract.
+Iets waar een verkoper bij denkt: "fuck, dat is precies wat ik doe."
 
 JSON output. Geen uitleg."""
 
@@ -198,11 +189,15 @@ JSON output. Geen uitleg."""
                 data = [data]
             for item in data:
                 item["id"] = str(uuid.uuid4())
+                # Map new format to expected fields
+                item["title"] = item.get("title", "Untitled")
+                item["hook"] = item.get("hook", "")
+                item["full_text"] = item.get("full_script", "")
+                item["content_type"] = item.get("pain_type", "research_hell")
                 # Backward compatibility
-                item["hook"] = item.get("opening_line", "")
-                item["main_points"] = [item.get("core_observation", "")]
-                item["cta"] = item.get("closing_line", "")
-                item["hashtags"] = []
+                item["main_points"] = [item.get("scene", "")]
+                item["cta"] = item.get("sting", "")
+                item["hashtags"] = ["b2bsales", "sales"]
             return data
         except json.JSONDecodeError as e:
             logger.error(f"Failed to parse topics: {e}")

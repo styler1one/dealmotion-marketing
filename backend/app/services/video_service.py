@@ -230,93 +230,100 @@ class VideoService:
     
     def _get_scene_variety(self) -> List[str]:
         """
-        Get varied scene prompts - REAL B2B sales moments.
-        Each 2-second clip shows authentic sales work life.
+        Scene prompts matching the 6 DealMotion pain points.
+        Visual storytelling of B2B sales frustration.
         """
         scenes = [
-            # Scene 1: Early morning / laptop glow
+            # RESEARCH HELL scenes
             """Cinematic vertical video (9:16), 2 seconds.
+            Person at laptop, multiple browser tabs visible. Scrolling LinkedIn.
+            Slight frustration, hand on forehead. Looking but not finding.
+            The endless search for information that isn't there.
+            Style: Blue screen glow on face, dark room, late hour feeling.
+            Camera: Over-shoulder showing screen chaos, then face.""",
             
-            Dark room, early morning. Laptop screen illuminating person's face.
-            Checking emails, slight frown of concentration. Coffee mug nearby.
-            The quiet intensity of starting the day before others wake up.
-            
-            Style: Moody, intimate, real. Blue screen light on face.
-            Camera: Close-up on face, slight handheld movement.""",
-            
-            # Scene 2: CRM / Pipeline view
             """Cinematic vertical video (9:16), 2 seconds.
+            Close-up of hands typing search query. Google results.
+            Scrolling, clicking, back button. Repeat.
+            The hamster wheel of prospect research.
+            Style: Screen light, focused but frustrated.
+            Camera: Tight on hands and screen.""",
             
-            Close-up of hands scrolling through CRM or spreadsheet.
-            Many tasks, deals, numbers visible. Slight sigh or pause.
-            The reality of managing a pipeline.
-            
-            Style: Documentary, authentic. Screen glow, office lighting.
-            Camera: Over-shoulder or hands close-up.""",
-            
-            # Scene 3: Waiting for reply
+            # IGNORED OUTREACH scenes
             """Cinematic vertical video (9:16), 2 seconds.
+            Phone notification - LinkedIn message sent. Then nothing.
+            Person waiting, checking, still nothing.
+            The silence after sending.
+            Style: Clean, modern, slightly cold.
+            Camera: Phone screen, then reaction face.""",
             
-            Person glancing at phone on desk. Waiting. Checking again.
-            The anticipation of a reply that doesn't come.
-            Slight frustration, then acceptance.
-            
-            Style: Intimate, relatable. Natural office light.
-            Camera: Medium shot, subtle focus shift.""",
-            
-            # Scene 4: Before the call
             """Cinematic vertical video (9:16), 2 seconds.
+            Typing a message, selecting text, deleting.
+            Starting over. Same template.
+            The copy-paste grind of outreach.
+            Style: Close, intimate, repetitive motion.
+            Camera: Hands typing, slight sigh.""",
             
-            Person adjusting headset, checking camera angle.
-            Quick glance at notes. Deep breath before clicking join.
-            The moment of preparation before a big meeting.
-            
-            Style: Tense, focused. Ring light or window light.
-            Camera: Close on face and hands, slight movement.""",
-            
-            # Scene 5: End of day
+            # UNPREPARED MEETINGS scenes
             """Cinematic vertical video (9:16), 2 seconds.
+            Clock showing 5 minutes to meeting. Person scrambling.
+            Opening LinkedIn frantically. Who is this person?
+            The panic before an unprepared call.
+            Style: Tense, rushed, slight sweat.
+            Camera: Clock, then frantic screen search.""",
             
-            Empty office, one person still at desk. Laptop glow.
-            Rubbing eyes, leaning back. The solitude of sales work.
-            Looking at tomorrow's calendar, then shutting laptop.
-            
-            Style: Quiet, reflective. Evening office lighting.
-            Camera: Wide then close, slow movement.""",
-            
-            # Scene 6: Small win moment
             """Cinematic vertical video (9:16), 2 seconds.
+            Video call loading screen. Person adjusting quickly.
+            Last second check of notes. Blank page.
+            The moment before you wing it.
+            Style: Ring light harsh, nervous energy.
+            Camera: Face, then empty notes.""",
             
-            Reading an email, subtle smile forming.
-            Quick satisfied nod or small fist pump, alone at desk.
-            The private celebration of progress.
-            
-            Style: Warm, hopeful. Natural light.
-            Camera: Close on face, reaction shot.""",
-            
-            # Scene 7: Research mode
+            # NOTE-TAKING TRAP scenes
             """Cinematic vertical video (9:16), 2 seconds.
+            Split focus: person typing notes while someone talks (implied).
+            Missing eye contact. Head down. Typing fast.
+            Present but not really there.
+            Style: Screen glow, distracted energy.
+            Camera: Hands typing, then confused face.""",
             
-            Multiple browser tabs open. LinkedIn, company website.
-            Taking notes while reading. Finding something useful.
-            The detective work of sales preparation.
-            
-            Style: Focused, intent. Screen light on face.
-            Camera: Over-shoulder, slight zoom on screen.""",
-            
-            # Scene 8: Coffee and thinking
             """Cinematic vertical video (9:16), 2 seconds.
+            Looking up from notes. Pause. What did they just say?
+            The moment you realize you missed something important.
+            Style: Natural office light, slight embarrassment.
+            Camera: Close on face, recognition of mistake.""",
             
-            Person holding coffee, staring into distance.
-            Not at screen. Just thinking. Processing a conversation.
-            The mental work that happens between calls.
+            # SLOW FOLLOW-UP scenes
+            """Cinematic vertical video (9:16), 2 seconds.
+            Calendar showing days passing. Monday, Tuesday, Wednesday...
+            Unopened email draft. "Follow up on our meeting"
+            The procrastination of post-meeting action.
+            Style: Time passing, guilt building.
+            Camera: Calendar dates, then untouched laptop.""",
             
-            Style: Contemplative, honest. Warm café or office light.
-            Camera: Profile shot, shallow depth of field.""",
+            """Cinematic vertical video (9:16), 2 seconds.
+            Finally opening laptop to write follow-up. Hesitation.
+            What was it we talked about again?
+            Too much time has passed.
+            Style: Dim evening light, low energy.
+            Camera: Hands on keyboard, not typing.""",
+            
+            # NO FEEDBACK scenes
+            """Cinematic vertical video (9:16), 2 seconds.
+            End of another call. Hanging up. Alone.
+            No debrief. No coaching. Just the next call.
+            The isolation of sales work.
+            Style: Empty office, solo desk, quiet.
+            Camera: Person alone after call ends.""",
+            
+            """Cinematic vertical video (9:16), 2 seconds.
+            Looking at CRM pipeline. Same numbers. Same approach.
+            What am I doing wrong? No one to ask.
+            The plateau without feedback.
+            Style: Screen data, confused expression.
+            Camera: Data on screen, then questioning face.""",
         ]
         
-        # Shuffle to get variety each time
-        import random
         random.shuffle(scenes)
         return scenes
     
