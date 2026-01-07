@@ -1,6 +1,7 @@
 """
-Topic Service - Generate content topics using Claude.
-Optimized for viral YouTube Shorts (15-30 sec).
+Topic Service - Generate thought leadership topics using Claude.
+
+Philosophy: Observation beats advice. Framing beats tactics. Clarity beats hype.
 """
 import json
 import uuid
@@ -15,15 +16,16 @@ from app.config import get_settings
 
 
 class ContentType(str, Enum):
-    """Types of content we can generate."""
-    SALES_TIP = "sales_tip"
-    AI_NEWS = "ai_news"
-    HOT_TAKE = "hot_take"
-    PRODUCT_SHOWCASE = "product_showcase"
+    """Types of thought leadership content."""
+    SALES_ILLUSION = "sales_illusion"      # Something sellers believe that is quietly false
+    EXECUTION_FAILURE = "execution_failure" # Why deals stall despite "good activity"
+    SIGNAL_MISS = "signal_miss"            # A buying signal most sellers misinterpret
+    SYSTEM_FLAW = "system_flaw"            # Where CRM/process creates false confidence
+    DECISION_DYNAMICS = "decision_dynamics" # How buyers actually decide vs what sellers assume
 
 
 class TopicService:
-    """Service for generating content topics using Claude."""
+    """Service for generating thought leadership topics using Claude."""
     
     def __init__(self):
         self.settings = get_settings()
@@ -33,10 +35,10 @@ class TopicService:
     def generate_topics(
         self,
         content_type: Optional[ContentType] = None,
-        count: int = 5,
+        count: int = 1,
         language: str = "nl"
     ) -> List[dict]:
-        """Generate topic ideas for YouTube shorts."""
+        """Generate thought leadership topic ideas."""
         logger.info(f"Generating {count} topics (type={content_type}, lang={language})")
         
         system_prompt = self._build_system_prompt(language)
@@ -62,51 +64,93 @@ class TopicService:
     
     def _build_system_prompt(self, language: str) -> str:
         lang_instruction = "in het Nederlands" if language == "nl" else "in English"
-        current_date = datetime.now().strftime("%d %B %Y")
-        current_year = datetime.now().year
         
-        return f"""Je bent een viral YouTube Shorts strateeg voor B2B sales content.
+        return f"""You are a senior B2B sales strategist.
 
-VANDAAG: {current_date}
-JAAR: {current_year} (altijd actuele referenties!)
+Your role is NOT to generate viral content.
+Your role is to surface uncomfortable truths about how B2B deals actually work.
 
-BRAND: {self.settings.brand_name}
-WEBSITE: {self.settings.brand_website}
-TAGLINE: {self.settings.brand_tagline}
-DOELGROEP: B2B sales professionals
+Brand: {self.settings.brand_name}
+Positioning: Operating system for serious B2B sellers
+Audience: Experienced B2B sellers, founders, sales leaders
 
-⚡ VIRAL SHORTS FORMULES:
-1. CONTROVERSY: "X is dood" / "Stop met Y"
-2. CURIOSITY GAP: "Dit wist je niet over..."
-3. QUICK WIN: "Doe dit NU en..."
-4. MYTH BUST: "Iedereen denkt X, maar..."
-5. SECRET: "Niemand vertelt je dit..."
+CORE CONTENT PHILOSOPHY
+- Observation beats advice
+- Framing beats tactics
+- Clarity beats hype
 
-CONTENT TYPES:
-1. SALES_TIP - Één praktische tip (niet meerdere!)
-2. AI_NEWS - Één AI tool of trend ({current_year})
-3. HOT_TAKE - Controversiële mening
-4. PRODUCT_SHOWCASE - Één DealMotion feature
+EVERY TOPIC MUST:
+- Be based on a real-world sales pattern or failure mode
+- Contain one clear point of view
+- Challenge a commonly accepted belief in sales
 
-REQUIREMENTS:
-- Shorts zijn 15-25 seconden (KORT!)
-- Hook: scroll-stopper in 1-2 sec
-- ÉÉN boodschap per video
-- Content {lang_instruction}
-- Zachte CTA (geen harde sell)
+POSITIONING (NON-NEGOTIABLE):
+DealMotion content is:
+- Observational
+- Contrarian
+- Calm
+- Precise
+- Unemotional
 
-OUTPUT: JSON array met:
-- content_type: een van [sales_tip, ai_news, hot_take, product_showcase]
-- title: YouTube titel (pakkend, max 50 chars)
-- hook: scroll-stopper (max 10 woorden!)
-- main_points: array van PRECIES 1 key point
-- cta: subtiele call to action
-- hashtags: 3 relevante hashtags
-- estimated_duration_seconds: 15-25"""
+NOT:
+- Hype-driven
+- Coachy
+- Salesy
+- Energetic
+- Creator-like
+
+THOUGHT LEADERSHIP RULES:
+Every video must:
+- Introduce or correct ONE mental model
+- Unmask ONE illusion
+- Force ONE framing shift
+
+If it cannot do this → reject the topic.
+
+LANGUAGE RULES (HARD):
+FORBIDDEN words/phrases:
+- "game changer"
+- "in 2026" or any year reference
+- "AI is changing..."
+- "je moet" / "you should"
+- "snelle tip" / "quick tip"
+- emojis
+- exclamation marks
+
+ALLOWED:
+- Short declarative sentences
+- Calm
+- Silence
+- Implicit authority
+
+AVOID:
+- Tips, hacks, checklists
+- Motivational language
+- Tool-first thinking
+- "AI news" unless it changes behavior, not capability
+
+TOPIC TYPES (choose exactly one):
+1. SALES_ILLUSION – something sellers believe that is quietly false
+2. EXECUTION_FAILURE – why deals stall despite "good activity"
+3. SIGNAL_MISS – a buying signal most sellers misinterpret
+4. SYSTEM_FLAW – where CRM/process creates false confidence
+5. DECISION_DYNAMICS – how buyers actually decide vs what sellers assume
+
+OUTPUT FORMAT (JSON only):
+- content_type: one of [sales_illusion, execution_failure, signal_miss, system_flaw, decision_dynamics]
+- core_observation: 1 sentence, declarative
+- false_belief: what most sellers think
+- reframing: what's actually true
+- title: calm, confident, max 45 chars, no emojis
+- opening_line: first sentence of the video, no hook language
+- closing_line: open loop, no CTA
+- estimated_duration_seconds: 20-40
+
+Write {lang_instruction}."""
 
     def _build_user_prompt(self, content_type: Optional[ContentType], count: int, language: str) -> str:
-        type_instruction = f"Focus op {content_type.value}" if content_type else "Mix van types"
-        return f"Genereer {count} topics. {type_instruction}. Alleen JSON output."
+        type_instruction = f"Focus on {content_type.value}" if content_type else "Mix of types"
+        return f"Generate {count} topic(s). {type_instruction}. JSON output only. No explanations."
 
     def _parse_topics(self, content: str) -> List[dict]:
         content = content.strip()
@@ -118,10 +162,17 @@ OUTPUT: JSON array met:
         
         try:
             data = json.loads(content)
+            # Handle single topic vs array
+            if isinstance(data, dict):
+                data = [data]
             for item in data:
                 item["id"] = str(uuid.uuid4())
+                # Map to old format for compatibility
+                item["hook"] = item.get("opening_line", "")
+                item["main_points"] = [item.get("core_observation", "")]
+                item["cta"] = item.get("closing_line", "")
+                item["hashtags"] = []  # No hashtags for thought leadership
             return data
         except json.JSONDecodeError as e:
             logger.error(f"Failed to parse topics: {e}")
             return []
-

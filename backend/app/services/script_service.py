@@ -1,6 +1,8 @@
 """
-Script Service - Generate video scripts using Claude.
-Optimized for viral YouTube Shorts (15-30 sec).
+Script Service - Generate thought leadership scripts using Claude.
+
+Structure: Observation → Friction → Reframe → Implication
+Tone: Calm, precise, slightly contrarian, no hype, no coaching.
 """
 import json
 import uuid
@@ -14,7 +16,7 @@ from app.config import get_settings
 
 
 class ScriptService:
-    """Service for generating video scripts using Claude."""
+    """Service for generating thought leadership scripts using Claude."""
     
     def __init__(self):
         self.settings = get_settings()
@@ -25,9 +27,9 @@ class ScriptService:
         self,
         topic: dict,
         language: str = "nl",
-        target_duration: int = 25  # Shorts sweet spot: 15-30 sec
+        target_duration: int = 30  # Thought leadership: 20-40 sec
     ) -> dict:
-        """Generate a video script from a topic."""
+        """Generate a thought leadership script from a topic."""
         logger.info(f"Generating script for: {topic.get('title', 'Unknown')}")
         
         system_prompt = self._build_system_prompt(language)
@@ -52,61 +54,85 @@ class ScriptService:
     
     def _build_system_prompt(self, language: str) -> str:
         lang_instruction = "in het Nederlands" if language == "nl" else "in English"
-        current_date = datetime.now().strftime("%d %B %Y")
-        current_year = datetime.now().year
         
-        return f"""Je bent een viral YouTube Shorts expert. Je schrijft KORTE, PAKKENDE scripts.
+        return f"""You are a thought leadership editor.
 
-VANDAAG: {current_date}
-JAAR: {current_year} (gebruik altijd actuele referenties!)
+You write scripts that sound like someone who has seen hundreds of B2B deals fail for the same reasons.
 
-BRAND: {self.settings.brand_name}
-WEBSITE: {self.settings.brand_website}
+POSITIONING (NON-NEGOTIABLE):
+The content is:
+- Observational
+- Contrarian
+- Calm
+- Precise
+- Unemotional
 
-⚡ SHORTS GOUDEN REGELS:
-1. MAX 25 SECONDEN (15-25 sec is sweet spot)
-2. ÉÉN BOODSCHAP per video (niet 3 punten!)
-3. HOOK in eerste 1-2 sec (scroll-stopper)
-4. DIRECT to the point - geen intro, geen "Hey guys"
-5. SNELLE zinnen - max 8-10 woorden per zin
-6. CONVERSATIONAL toon - alsof je een vriend tipt
-7. END met nieuwsgierigheid of CTA
+NOT:
+- Hype-driven
+- Coachy
+- Salesy
+- Energetic
+- Creator-like
 
-SCRIPT STRUCTUUR (max 25 sec):
-- HOOK (0-2 sec): Scroll-stopper. Provocerend/verrassend.
-- PAYLOAD (2-20 sec): ÉÉN gouden nugget. Concreet.
-- CLOSER (20-25 sec): Punch of zachte CTA.
+TONE:
+- Calm
+- Precise
+- Slightly contrarian
+- No hype
+- No coaching
 
-OUTPUT: JSON met:
-- title: YouTube titel (pakkend, max 50 chars)
-- description: korte beschrijving
-- segments: array van {{type, text, duration_seconds}}
-- full_text: tekst voor TTS (MAX 60 woorden!)
-- total_duration_seconds: MAX 25
+STRUCTURE (MANDATORY):
+1. OBSERVATION – what you keep seeing
+2. FRICTION – why this is uncomfortable or ignored
+3. REFRAME – how to look at it differently
+4. IMPLICATION – what this changes for sellers
 
-Schrijf {lang_instruction}. Kort. Punchy. Viral."""
+RULES (HARD):
+- Max 90 words
+- Short sentences, but not punchy
+- No rhetorical questions
+- No calls to action
+- No product mention
+- No time references ("today", "now", "in 2026")
+- No emojis
+- No exclamation marks
+
+FORBIDDEN words/phrases:
+- "game changer"
+- year references
+- "AI is changing..."
+- "je moet" / "you should"
+- "snelle tip" / "quick tip"
+
+The script should feel unfinished on purpose.
+Leave space for thought.
+
+OUTPUT FORMAT (JSON only):
+- title: calm, confident, max 45 chars, no emojis
+- description: one sentence summary
+- full_text: the complete script (max 90 words)
+- segments: array with observation, friction, reframe, implication
+- total_word_count: actual word count
+- total_duration_seconds: estimated duration (20-40)
+
+Write {lang_instruction}."""
 
     def _build_user_prompt(self, topic: dict, target_duration: int, language: str) -> str:
-        # Take only the FIRST main point - ONE message per Short!
-        main_points = topic.get('main_points', [])
-        key_message = main_points[0] if main_points else topic.get('hook', '')
-        
-        return f"""KORT SCRIPT (max {target_duration}s, max 60 woorden):
+        return f"""Create a script based on:
 
-TOPIC: {topic.get('title')}
-HOOK IDEE: {topic.get('hook')}
-KEY MESSAGE: {key_message}
-CLOSER: {topic.get('cta')}
+CORE OBSERVATION: {topic.get('core_observation', topic.get('hook', ''))}
+FALSE BELIEF: {topic.get('false_belief', '')}
+REFRAMING: {topic.get('reframing', '')}
+OPENING LINE: {topic.get('opening_line', topic.get('hook', ''))}
+CLOSING LINE: {topic.get('closing_line', '')}
+TITLE: {topic.get('title', '')}
 
-REGELS:
-- MAX 60 woorden totaal
-- Korte zinnen (max 10 woorden)
-- ÉÉN boodschap, niet meerdere tips
-- Geen "Hey", geen intro
-- Direct punch
+Target duration: {target_duration} seconds
+Language: {'Nederlands' if language == 'nl' else 'English'}
 
-Taal: {'Nederlands' if language == 'nl' else 'English'}
-JSON output only."""
+JSON output only. No explanations.
+Structure: observation → friction → reframe → implication
+Max 90 words. Leave space for thought."""
 
     def _parse_script(self, content: str, topic: dict) -> dict:
         content = content.strip()
@@ -122,9 +148,17 @@ JSON output only."""
             
             # Ensure full_text exists
             if "full_text" not in data:
-                data["full_text"] = " ".join(
-                    seg.get("text", "") for seg in data.get("segments", [])
-                )
+                segments = data.get("segments", [])
+                if segments:
+                    data["full_text"] = " ".join(
+                        seg.get("text", "") for seg in segments
+                    )
+                else:
+                    data["full_text"] = topic.get("opening_line", "") + " " + topic.get("closing_line", "")
+            
+            # Calculate word count if not present
+            if "total_word_count" not in data:
+                data["total_word_count"] = len(data["full_text"].split())
             
             return data
             
@@ -135,7 +169,7 @@ JSON output only."""
                 "title": topic.get("title", ""),
                 "description": "",
                 "segments": [],
-                "full_text": topic.get("hook", "") + " " + " ".join(topic.get("main_points", [])),
-                "total_duration_seconds": 45
+                "full_text": topic.get("opening_line", "") + " " + topic.get("core_observation", ""),
+                "total_word_count": 0,
+                "total_duration_seconds": 30
             }
-

@@ -1,13 +1,14 @@
 """
-Video Service - Generate videos using Google Veo 2 via Gemini API.
+Video Service - Generate abstract thought leadership videos using Google Veo 2.
+
+Visual Philosophy: Symbolic, abstract, quiet, slightly alienating.
+NOT lifestyle stock. NOT obvious sales scenes.
+The video should feel like a thought, not an ad.
 """
 import os
-import json
-import base64
 import time
 import uuid
-import tempfile
-from pathlib import Path
+import random
 from loguru import logger
 
 from app.config import get_settings
@@ -15,7 +16,7 @@ from app.services.storage_service import StorageService
 
 
 class VideoService:
-    """Service for generating videos using Google Veo 2 via Gemini API."""
+    """Service for generating abstract videos using Google Veo 2 via Gemini API."""
     
     def __init__(self):
         self.settings = get_settings()
@@ -32,10 +33,7 @@ class VideoService:
                 raise ValueError("GOOGLE_GEMINI_API_KEY not configured")
             
             logger.info("Creating GenAI client with Gemini API key...")
-            
-            # Initialize client with API key (Gemini Developer API)
             client = genai.Client(api_key=api_key)
-            
             logger.info("GenAI client created successfully")
             return client
             
@@ -47,14 +45,14 @@ class VideoService:
         self,
         script: dict,
         audio_url: str = None,
-        style: str = "professional B2B content",
+        style: str = "abstract thought leadership",
     ) -> dict:
         """
-        Generate a video from a script using Google Veo 2.
+        Generate an abstract video from a script using Google Veo 2.
         
         Args:
             script: Script dict with title, full_text, segments
-            audio_url: URL to the audio file (from ElevenLabs/Supabase)
+            audio_url: URL to the audio file
             style: Visual style description
             
         Returns:
@@ -66,7 +64,7 @@ class VideoService:
         title = script.get('title', 'Unknown')
         logger.info(f"🎬 Generating video: {title}")
         
-        # Build the video prompt from script
+        # Build abstract video prompt
         full_text = script.get('full_text', '')
         prompt = self._build_video_prompt(full_text, style)
         
@@ -76,23 +74,22 @@ class VideoService:
             
             client = self._get_client()
             
-            # Start video generation with Veo 2
             logger.info("Starting Veo 2 video generation...")
-            logger.info(f"Prompt: {prompt[:200]}...")
+            logger.info(f"Prompt: {prompt[:300]}...")
             
             operation = client.models.generate_videos(
-                model="veo-2.0-generate-001",  # Veo 2 model
+                model="veo-2.0-generate-001",
                 prompt=prompt,
                 config=types.GenerateVideosConfig(
-                    aspect_ratio="9:16",  # Vertical for Shorts
+                    aspect_ratio="9:16",
                     number_of_videos=1,
-                    duration_seconds=8,  # Veo 2 generates 8-sec clips
-                    negative_prompt="blurry, low quality, distorted, amateur, cartoon",
+                    duration_seconds=8,
+                    negative_prompt="celebrations, smiles, high energy, pointing, typing, selling, lifestyle, productivity, stock photo, obvious success, warm colors, upbeat, corporate happiness",
                 ),
             )
             
-            # Wait for generation to complete (with timeout)
-            max_wait = 300  # 5 minutes
+            # Wait for generation
+            max_wait = 300
             waited = 0
             poll_interval = 10
             
@@ -105,32 +102,25 @@ class VideoService:
             if not operation.done:
                 raise Exception("Video generation timed out after 5 minutes")
             
-            # Get the generated video
             if operation.result and operation.result.generated_videos:
                 video = operation.result.generated_videos[0]
-                
-                # Download video
                 video_id = str(uuid.uuid4())
                 
                 logger.info("Downloading generated video...")
                 client.files.download(file=video.video)
                 
-                # Save to temp file first
                 temp_path = f"/tmp/{video_id}.mp4"
                 video.video.save(temp_path)
                 
-                # Read video bytes
                 with open(temp_path, 'rb') as f:
                     video_bytes = f.read()
                 
-                # Upload to Supabase Storage
                 logger.info(f"Uploading video to Supabase Storage ({len(video_bytes)} bytes)...")
                 video_url = self.storage.upload_video(
                     video_bytes=video_bytes,
                     filename=f"videos/{video_id}.mp4"
                 )
                 
-                # Clean up temp file
                 if os.path.exists(temp_path):
                     os.remove(temp_path)
                 
@@ -147,114 +137,125 @@ class VideoService:
                 raise Exception("No video generated in response")
                 
         except ImportError as e:
-            raise Exception(f"Google GenAI library not installed: {e}. Run: pip install google-genai")
+            raise Exception(f"Google GenAI library not installed: {e}")
         except Exception as e:
             logger.error(f"Video generation failed: {e}")
             raise
     
     def _build_video_prompt(self, script_text: str, style: str) -> str:
         """
-        Build a cinematic video prompt based on the script content.
+        Build an abstract, symbolic video prompt.
         
-        Creates human, relatable, stylish scenes for modern sales professionals.
-        NOT boring corporate stock footage - real people, authentic vibes.
+        Visual philosophy:
+        - Symbolic, not illustrative
+        - Abstract, not lifestyle
+        - Quiet, not energetic
+        - Slightly alienating
+        - Thought, not ad
         """
-        import random
         
-        # Analyze script to determine scene type
-        text_lower = script_text.lower()
+        # Abstract visual scenes - no obvious sales/success imagery
+        abstract_scenes = [
+            # Empty spaces / architecture
+            "Empty modern glass corridor, slow tracking shot, person walking away in distance, muted cool tones, minimal, quiet tension",
+            "Vast empty office floor after hours, single figure standing by window, city lights beyond, contemplative stillness, blue hour",
+            "Long hotel hallway, symmetrical perspective, figure pausing mid-walk, ambient light, sense of waiting",
+            "Glass elevator ascending slowly, lone figure inside, city below, reflection and reality merging, quiet isolation",
+            
+            # Movement without purpose
+            "Person walking through empty parking garage, footsteps echoing, concrete brutalism, directionless movement",
+            "Figure standing in crosswalk as others pass, time slowed, urban anonymity, slight disconnection",
+            "Silhouette on escalator moving upward, no destination visible, liminal space, quiet ascent",
+            "Person sitting alone in empty waiting room, fluorescent light, patient stillness, uncertain anticipation",
+            
+            # Reflections and glass
+            "Office window at dusk, figure reflected but facing away, city becoming abstract lights, introspective moment",
+            "Glass conference room, empty chairs, one person standing, reflection duplicating solitude",
+            "Rain on window, blurred cityscape beyond, figure barely visible inside, contemplation",
+            "Revolving door in slow motion, figure passing through, threshold between spaces",
+            
+            # System metaphors
+            "Hands hovering over phone on desk, not touching, decision suspended, quiet paralysis",
+            "Empty boardroom table, chairs pushed back, evidence of recent departure, aftermath",
+            "Laptop closed on desk, person looking out window instead, rejection of busywork",
+            "Figure walking past rows of empty desks, systematic solitude, post-work liminal",
+            
+            # Urban observation
+            "Person on rooftop edge, city sprawling below, observer not participant, removed perspective",
+            "Train platform, figure standing still as train passes, blur of movement, stillness within chaos",
+            "Coffee cup untouched on table, person gazing at nothing, thoughts elsewhere",
+            "Stairwell between floors, figure paused mid-step, between states, uncertain direction",
+        ]
         
-        # Human, stylish scene options - relatable to modern salespeople
-        scenes = {
-            'cold_calling': [
-                "Confident young professional walking through city street while on phone call, stylish casual business attire, AirPods, golden hour sunlight, cinematic urban backdrop, genuine smile",
-                "Charismatic salesperson in trendy co-working space, taking a call by large window, city skyline view, natural lighting, relaxed confident posture, modern aesthetic",
-                "Dynamic professional pacing in minimalist loft apartment, on an important call, exposed brick walls, morning light streaming in, authentic moment of focus",
-            ],
-            'ai_tech': [
-                "Young tech-savvy professional in sleek modern cafe, working on MacBook, thoughtful expression, ambient warm lighting, plants and coffee, creative energy",
-                "Confident entrepreneur reviewing data on tablet in rooftop bar setting, city lights in background, evening ambiance, sophisticated but approachable",
-                "Diverse team having animated discussion in bright modern space, authentic collaboration moment, natural body language, contemporary setting",
-            ],
-            'sales_deals': [
-                "Two professionals having coffee meeting in upscale cafe, genuine connection moment, smart casual attire, warm natural lighting, authentic conversation",
-                "Confident closer walking out of modern building, successful energy, stylish outfit, sunset lighting, urban environment, victory moment",
-                "Charismatic professional presenting to small group in modern lounge setting, engaged audience, warm atmosphere, natural interaction",
-            ],
-            'outreach': [
-                "Creative professional in cozy home office setup, plants and personality, focused but relaxed, morning coffee ritual, authentic workspace",
-                "Young entrepreneur typing on laptop at trendy cafe terrace, urban backdrop, golden hour, casual confidence, lifestyle moment",
-                "Professional scrolling phone in stylish lobby, modern architecture, natural light, candid moment of research",
-            ],
-            'growth_success': [
-                "Team celebrating win in modern office with champagne, genuine joy and high-fives, diverse group, warm lighting, authentic celebration",
-                "Entrepreneur looking out over city from high-rise window, contemplative success moment, silhouette against skyline, aspirational",
-                "Professional pumping fist in victory after closing deal, authentic emotion, modern workspace backdrop, energy and triumph",
-            ],
-            'default': [
-                "Stylish young professional walking confidently through modern city, smart casual look, AirPods in, purposeful stride, cinematic urban feel",
-                "Charismatic person having video call in aesthetic home setup, ring light glow, genuine engagement, contemporary lifestyle",
-                "Dynamic professional in motion through sleek building lobby, modern architecture, natural confidence, cinematic movement",
-            ]
-        }
+        # Pick random scene
+        scene = random.choice(abstract_scenes)
         
-        # Determine scene category based on content keywords
-        if any(word in text_lower for word in ['cold call', 'bellen', 'telefoon', 'phone', 'call']):
-            category = 'cold_calling'
-        elif any(word in text_lower for word in ['ai', 'artificial intelligence', 'machine learning', 'automatisering', 'tech']):
-            category = 'ai_tech'
-        elif any(word in text_lower for word in ['sales', 'verkoop', 'deal', 'prospect', 'lead', 'klant', 'close']):
-            category = 'sales_deals'
-        elif any(word in text_lower for word in ['email', 'outreach', 'linkedin', 'social', 'netwerk']):
-            category = 'outreach'
-        elif any(word in text_lower for word in ['groei', 'growth', 'scale', 'revenue', 'omzet', 'succes', 'win']):
-            category = 'growth_success'
-        else:
-            category = 'default'
-        
-        # Pick random scene from category for variety
-        scene = random.choice(scenes[category])
-        
-        prompt = f"""Cinematic vertical video (9:16 aspect ratio for YouTube Shorts).
+        prompt = f"""Abstract cinematic vertical video (9:16).
 
-Scene: {scene}
+Visual metaphor for B2B decision-making and stalled progress.
 
-Style requirements:
-- Real human subjects, authentic not staged
-- Modern, aspirational lifestyle aesthetic
-- Cinematic shallow depth of field
-- Smooth camera movement (slow motion or gimbal)
-- Premium color grading, warm tones
-- NO corporate stock footage look
-- NO suits and ties
-- NO pointing at graphs
-- Genuine human moments
-- Stylish, confident, relatable
+SCENE: {scene}
 
-Technical: High-end commercial quality, photorealistic, no text overlays, no watermarks."""
+STYLE:
+- Minimalist
+- Quiet
+- Observational
+- Slightly tense
+- No obvious success or failure
+
+VISUAL ELEMENTS:
+- Empty or semi-empty modern spaces
+- Slow human movement without interaction
+- Waiting, walking, pausing, observing
+- Reflections, glass, corridors, elevators, lobbies
+- City or office architecture as system metaphors
+
+CAMERA:
+- Slow tracking shots
+- Static frames with subtle movement
+- Natural imperfections
+- Shallow depth of field
+
+COLOR:
+- Muted tones
+- Cool or neutral grading
+- No warm "success" colors
+- Slight desaturation
+
+STRICTLY AVOID:
+- Celebrations
+- Smiles
+- High energy
+- Pointing, typing, selling
+- Obvious sales scenes
+- Lifestyle productivity shots
+- Stock photo aesthetics
+- Warm golden hour lighting
+- Victory moments
+
+NO text overlays.
+NO watermarks.
+
+The video should feel like a thought, not an ad.
+Visual representation of stalled progress and quiet realization."""
         
-        logger.info(f"Generated Veo prompt: category={category}")
+        logger.info(f"Generated abstract Veo prompt")
         return prompt.strip()
     
     def generate_video_with_audio(
         self,
         script: dict,
         audio_url: str,
-        style: str = "professional B2B content",
+        style: str = "abstract thought leadership",
     ) -> dict:
-        """
-        Generate video and combine with audio.
-        
-        Note: Veo 2 generates video without audio, so we need to 
-        combine the video with ElevenLabs audio in post-processing.
-        """
+        """Generate video and combine with audio."""
         video_result = self.generate_video(script, audio_url, style)
         video_result["audio_url"] = audio_url
         video_result["needs_audio_merge"] = True
         return video_result
     
     def get_video_status(self, video_id: str) -> dict:
-        """Get the status of a video (from Supabase storage check)."""
+        """Get the status of a video."""
         try:
             video_url = f"{self.settings.supabase_url}/storage/v1/object/public/media/videos/{video_id}.mp4"
             return {
