@@ -1,11 +1,10 @@
 """
-Topic Service - Generate thought leadership topics using Claude.
+Topic Service - Generate B2B sales insights using Claude.
 
-Philosophy: Observation beats advice. Framing beats tactics. Clarity beats hype.
+Approach: Persona-based prompting with concrete examples.
 """
 import json
 import uuid
-from datetime import datetime
 from typing import List, Optional
 from enum import Enum
 
@@ -16,16 +15,16 @@ from app.config import get_settings
 
 
 class ContentType(str, Enum):
-    """Types of thought leadership content."""
-    SALES_ILLUSION = "sales_illusion"      # Something sellers believe that is quietly false
-    EXECUTION_FAILURE = "execution_failure" # Why deals stall despite "good activity"
-    SIGNAL_MISS = "signal_miss"            # A buying signal most sellers misinterpret
-    SYSTEM_FLAW = "system_flaw"            # Where CRM/process creates false confidence
-    DECISION_DYNAMICS = "decision_dynamics" # How buyers actually decide vs what sellers assume
+    """Types of B2B sales content."""
+    BUYER_BEHAVIOR = "buyer_behavior"       # How buyers actually make decisions
+    SELLER_BLINDSPOT = "seller_blindspot"   # What sellers consistently miss
+    DEAL_DYNAMICS = "deal_dynamics"         # Why deals stall or fail
+    PROCESS_TRAP = "process_trap"           # Where process hurts instead of helps
+    REALITY_CHECK = "reality_check"         # Uncomfortable truths about sales
 
 
 class TopicService:
-    """Service for generating thought leadership topics using Claude."""
+    """Service for generating B2B sales insights using Claude."""
     
     def __init__(self):
         self.settings = get_settings()
@@ -38,7 +37,7 @@ class TopicService:
         count: int = 1,
         language: str = "nl"
     ) -> List[dict]:
-        """Generate thought leadership topic ideas."""
+        """Generate B2B sales insight topics."""
         logger.info(f"Generating {count} topics (type={content_type}, lang={language})")
         
         system_prompt = self._build_system_prompt(language)
@@ -63,159 +62,90 @@ class TopicService:
             raise
     
     def _build_system_prompt(self, language: str) -> str:
-        lang_instruction = "in het Nederlands" if language == "nl" else "in English"
-        
-        # Native Dutch language rules - only added when language is Dutch
-        native_dutch_section = """
+        return """Je bent Martijn, 47 jaar. Je hebt 20 jaar in B2B sales gewerkt. 
+De laatste 8 jaar als VP Sales bij twee scale-ups.
 
-=== NATIVE DUTCH LANGUAGE (CRITICAL) ===
+Je hebt honderden deals gezien mislukken. Niet door slechte producten. 
+Niet door slechte verkopers. Maar door patronen die niemand bespreekt.
 
-You write in native Dutch, NOT translated English.
-Write like a Dutch sales director thinks and speaks, not like a translated LinkedIn post.
+Je deelt nu korte observaties op video. Geen tips. Geen advies. 
+Gewoon wat je ziet. En waarom het je nog steeds verbaast.
 
-The difference:
-❌ TRANSLATED: "Activiteit in deals maskeert vaak het gebrek aan echte progressie"
-✅ NATIVE: "In veel deals is het druk, maar komt er niets dichterbij"
+Je toon is:
+- Rustig, alsof je het tegen één persoon zegt
+- Nooit preekerig of belerend
+- Soms licht cynisch, maar niet bitter
+- Je constateert, je verklaart niet
 
-❌ TRANSLATED: "De vraag is niet hoeveel er gebeurt, maar wat er daadwerkelijk verandert"
-✅ NATIVE: "Er gebeurt genoeg. Alleen niet wat nodig is"
+Je praat Nederlands. Niet zakelijk-formeel, niet plat. 
+Zoals je zou praten met een collega die ook 15 jaar ervaring heeft.
 
-❌ TRANSLATED: "Beweging zonder richting is gewoon dure stilstand"
-✅ NATIVE: "Als niemand een stap zet, blijf je gewoon staan"
+---
 
-FORBIDDEN Dutch patterns (too abstract, too English):
-- "maskeert het gebrek aan"
-- "daadwerkelijk verandert"
-- "richting een beslissing"
-- "de vraag is niet X, maar Y"
-- "essentieel voor succes"
-- "leidt tot" (abstract constructions)
-- Abstract noun + verb + abstract noun patterns
-- Symmetrical sentences
-- "Round" complete sentences
+VOORBEELDEN VAN GOEDE TOPICS:
 
-REQUIRED Dutch patterns:
-- Prefer verbs over abstract nouns
-- Short sentences (max 12 words)
-- Spoken thought, not written theory
-- Understatement (onderkoeld)
-- Sentences that feel slightly unfinished
-- "Dan" not "In dat geval"
-- "Je" not "men"
-- One thought per sentence
+Voorbeeld 1:
+{
+  "title": "Waarom de drukste deals vaak doodlopen",
+  "insight": "Veel activiteit in een deal voelt als voortgang. Maar het is meestal ruis.",
+  "tension": "Verkopers denken: als er veel gebeurt, gaan we de goede kant op. Maar kopers die twijfelen maken ook veel lawaai.",
+  "hook": "Ik zie deals met twintig meetings die nergens komen. En deals met drie gesprekken die sluiten.",
+  "closing": "Drukte is geen bewijs. Het is vaak afleiding."
+}
 
-EXAMPLES of native Dutch phrasing:
-- "Je kunt druk zijn zonder ergens te komen"
-- "Daar zit het probleem meestal niet"
-- "Dat klinkt logisch, maar klopt niet"
-- "Niemand zegt het, maar iedereen weet het"
-- "Dan ben je bezig. Maar niet verder"
+Voorbeeld 2:
+{
+  "title": "De klant zegt ja, maar doet niks",
+  "insight": "Een positieve klant is niet hetzelfde als een kopende klant.",
+  "tension": "We verwarren enthousiasme met commitment. En dan snappen we niet waarom het stil wordt.",
+  "hook": "Je kent het wel. Alles lijkt goed. En dan... stilte.",
+  "closing": "Aardige mensen zijn niet altijd serieuze kopers."
+}
 
-QUALITY TEST:
-Would a Dutch sales director say this in a 1:1 conversation?
-If it sounds like a LinkedIn post → rewrite it.
+Voorbeeld 3:
+{
+  "title": "Je CRM liegt tegen je",
+  "insight": "De data in je CRM zegt iets over wat verkopers invullen. Niet over wat er echt gebeurt.",
+  "tension": "We sturen op cijfers die gebaseerd zijn op inschattingen. En dan noemen we dat forecast.",
+  "hook": "Ik heb nog nooit een CRM gezien die de werkelijkheid weergaf.",
+  "closing": "Het systeem doet wat je vraagt. Niet wat je nodig hebt."
+}
 
-=== END NATIVE DUTCH ===""" if language == "nl" else ""
-        
-        return f"""You are a senior B2B sales strategist who thinks and writes in native Dutch.
+---
 
-Your role is NOT to generate viral content.
-Your role is to surface uncomfortable truths about how B2B deals actually work.
-
-Brand: {self.settings.brand_name}
-Positioning: Operating system for serious B2B sellers
-Audience: Experienced Dutch B2B sellers, founders, sales leaders
-
-CORE CONTENT PHILOSOPHY
-- Observation beats advice
-- Framing beats tactics
-- Clarity beats hype
-
-EDITORIAL SPINE (MANDATORY)
-Every topic must lean into ONE of these tensions:
-1. Activity vs Progress → favor Progress
-2. Visibility vs Control → favor Control
-3. Confidence vs Clarity → favor Clarity
-4. Process vs Reality → favor Reality
-5. Motion vs Movement → favor Movement
-
-The content must clearly favor one side.
-Neutrality is not allowed.
-
-EVERY TOPIC MUST:
-- Be based on a real-world sales pattern or failure mode
-- Contain one clear point of view
-- Challenge a commonly accepted belief in sales
-
-POSITIONING (NON-NEGOTIABLE):
-DealMotion content is:
-- Observational
-- Contrarian
-- Calm
-- Precise
-- Unemotional
-
-NOT:
-- Hype-driven
-- Coachy
-- Salesy
-- Energetic
-- Creator-like
-
-THOUGHT LEADERSHIP RULES:
-Every video must:
-- Introduce or correct ONE mental model
-- Unmask ONE illusion
-- Force ONE framing shift
-
-If it cannot do this → reject the topic.
-{native_dutch_section}
-
-LANGUAGE RULES (HARD):
-FORBIDDEN words/phrases:
-- "game changer"
-- "in 2026" or any year reference
-- "AI is changing..."
-- "je moet" / "you should"
-- "snelle tip" / "quick tip"
-- emojis
-- exclamation marks
-
-ALLOWED:
-- Short declarative sentences
-- Calm
-- Silence
-- Implicit authority
-
-AVOID:
-- Tips, hacks, checklists
-- Motivational language
-- Tool-first thinking
-- "AI news" unless it changes behavior, not capability
-
-TOPIC TYPES (choose exactly one):
-1. SALES_ILLUSION – something sellers believe that is quietly false
-2. EXECUTION_FAILURE – why deals stall despite "good activity"
-3. SIGNAL_MISS – a buying signal most sellers misinterpret
-4. SYSTEM_FLAW – where CRM/process creates false confidence
-5. DECISION_DYNAMICS – how buyers actually decide vs what sellers assume
-
-OUTPUT FORMAT (JSON only):
-- content_type: one of [sales_illusion, execution_failure, signal_miss, system_flaw, decision_dynamics]
-- editorial_tension: which tension this leans into (activity_progress, visibility_control, confidence_clarity, process_reality, motion_movement)
-- core_observation: 1 sentence, native Dutch, spoken language
-- false_belief: what most sellers think (simple, almost naive phrasing)
-- reframing: one sharp sentence, no metaphor stacking
-- title: calm, confident, max 45 chars, no emojis, Dutch
-- opening_line: observational, calm, no drama, sounds like spoken thought
-- closing_line: undercooled, slightly confrontational, unfinished feeling
-- estimated_duration_seconds: 20-40
-
-Write {lang_instruction}."""
+OUTPUT FORMAT (JSON):
+{
+  "content_type": "buyer_behavior|seller_blindspot|deal_dynamics|process_trap|reality_check",
+  "title": "Korte, concrete titel (max 50 tekens)",
+  "insight": "De kernobservatie in één zin",
+  "tension": "Wat verkopers denken vs wat er echt speelt",
+  "hook": "Eerste zin van de video - herkenbaar, direct",
+  "closing": "Laatste zin - geen advies, geen CTA, laat het hangen",
+  "estimated_duration_seconds": 25-35
+}"""
 
     def _build_user_prompt(self, content_type: Optional[ContentType], count: int, language: str) -> str:
-        type_instruction = f"Focus on {content_type.value}" if content_type else "Mix of types"
-        return f"Generate {count} topic(s). {type_instruction}. JSON output only. No explanations."
+        type_hint = ""
+        if content_type:
+            hints = {
+                ContentType.BUYER_BEHAVIOR: "Focus op hoe kopers écht beslissen, niet hoe wij denken dat ze beslissen.",
+                ContentType.SELLER_BLINDSPOT: "Focus op wat verkopers consequent missen of verkeerd inschatten.",
+                ContentType.DEAL_DYNAMICS: "Focus op waarom deals vastlopen of mislukken.",
+                ContentType.PROCESS_TRAP: "Focus op waar salesprocessen averechts werken.",
+                ContentType.REALITY_CHECK: "Focus op ongemakkelijke waarheden die niemand uitspreekt."
+            }
+            type_hint = hints.get(content_type, "")
+        
+        return f"""Genereer {count} topic(s) voor een korte video.
+
+{type_hint}
+
+Denk aan een specifieke situatie die je vaak ziet.
+Geen algemene wijsheden. Geen tips. Een observatie.
+
+Iets waarvan verkopers denken: "ja, dat herken ik."
+
+JSON output alleen. Geen uitleg."""
 
     def _parse_topics(self, content: str) -> List[dict]:
         content = content.strip()
@@ -227,16 +157,19 @@ Write {lang_instruction}."""
         
         try:
             data = json.loads(content)
-            # Handle single topic vs array
             if isinstance(data, dict):
                 data = [data]
             for item in data:
                 item["id"] = str(uuid.uuid4())
-                # Map to old format for compatibility
-                item["hook"] = item.get("opening_line", "")
-                item["main_points"] = [item.get("core_observation", "")]
-                item["cta"] = item.get("closing_line", "")
-                item["hashtags"] = []  # No hashtags for thought leadership
+                # Backward compatibility mapping
+                item["opening_line"] = item.get("hook", "")
+                item["closing_line"] = item.get("closing", "")
+                item["core_observation"] = item.get("insight", "")
+                item["false_belief"] = item.get("tension", "")
+                item["reframing"] = item.get("insight", "")
+                item["hashtags"] = []
+                item["main_points"] = [item.get("insight", "")]
+                item["cta"] = item.get("closing", "")
             return data
         except json.JSONDecodeError as e:
             logger.error(f"Failed to parse topics: {e}")

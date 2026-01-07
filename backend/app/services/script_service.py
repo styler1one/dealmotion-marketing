@@ -1,12 +1,10 @@
 """
-Script Service - Generate thought leadership scripts using Claude.
+Script Service - Generate video scripts using Claude.
 
-Structure: Observation → Friction → Reframe → Implication
-Tone: Calm, precise, slightly contrarian, no hype, no coaching.
+Approach: Persona-based prompting with concrete examples.
 """
 import json
 import uuid
-from datetime import datetime
 from typing import Optional
 
 import anthropic
@@ -16,7 +14,7 @@ from app.config import get_settings
 
 
 class ScriptService:
-    """Service for generating thought leadership scripts using Claude."""
+    """Service for generating video scripts using Claude."""
     
     def __init__(self):
         self.settings = get_settings()
@@ -27,13 +25,13 @@ class ScriptService:
         self,
         topic: dict,
         language: str = "nl",
-        target_duration: int = 30  # Thought leadership: 20-40 sec
+        target_duration: int = 30
     ) -> dict:
-        """Generate a thought leadership script from a topic."""
+        """Generate a video script from a topic."""
         logger.info(f"Generating script for: {topic.get('title', 'Unknown')}")
         
         system_prompt = self._build_system_prompt(language)
-        user_prompt = self._build_user_prompt(topic, target_duration, language)
+        user_prompt = self._build_user_prompt(topic, target_duration)
         
         try:
             response = self.client.messages.create(
@@ -53,149 +51,130 @@ class ScriptService:
             raise
     
     def _build_system_prompt(self, language: str) -> str:
-        lang_instruction = "in het Nederlands" if language == "nl" else "in English"
-        
-        # Native Dutch language rules - only added when language is Dutch
-        native_dutch_section = """
+        return """Je bent Martijn, 47 jaar. Je maakt korte video's over B2B sales.
 
-=== NATIVE DUTCH LANGUAGE (CRITICAL) ===
+Je praat rustig. Alsof je in een café zit met een collega.
+Geen presentatie. Geen pitch. Gewoon een gedachte delen.
 
-You write in native Dutch, NOT translated English.
-Write like a Dutch sales director thinks and speaks in a 1:1 conversation.
+Je structuur is simpel:
+1. Wat je ziet (observatie)
+2. Waarom dat raar is (frictie)  
+3. Hoe je er anders naar kunt kijken (reframe)
 
-The difference:
-❌ TRANSLATED: "Activiteit maskeert het gebrek aan echte progressie"
-✅ NATIVE: "Je bent druk. Maar niet verder"
+Je eindigt nooit met een conclusie of advies.
+Je laat de gedachte hangen. De kijker moet zelf nadenken.
 
-❌ TRANSLATED: "De vraag is niet hoeveel er gebeurt, maar wat er daadwerkelijk verandert"
-✅ NATIVE: "Er gebeurt genoeg. Alleen niet wat nodig is"
+---
 
-❌ TRANSLATED: "Dit leidt tot een vals gevoel van controle"
-✅ NATIVE: "Dat voelt als controle. Maar dat is het niet"
+VOORBEELD SCRIPT 1:
 
-FORBIDDEN Dutch patterns:
-- "maskeert het gebrek aan"
-- "daadwerkelijk verandert"
-- "richting een beslissing"
-- "de vraag is niet X, maar Y"
-- "essentieel voor succes"
-- "leidt tot" (abstract constructions)
-- Abstract noun stacking
-- Symmetrical sentences
+Titel: "Waarom de drukste deals vaak doodlopen"
 
-REQUIRED Dutch patterns:
-- Short sentences (max 12 words)
-- Spoken thought, not written theory
-- Understatement (onderkoeld)
-- "Dan" not "In dat geval"
-- "Je" not "men"
-- One thought per sentence
-- Prefer verbs over abstract nouns
+"Ik zie het steeds weer.
+Een deal met twintig meetings. Eindeloos heen en weer.
+En dan... niks.
 
-GOOD Dutch phrasing examples:
-- "Je kunt druk zijn zonder ergens te komen"
-- "Daar zit het probleem meestal niet"
-- "Niemand zegt het, maar iedereen weet het"
-- "Dan ben je bezig. Maar niet verder"
-- "Dat klinkt logisch. Maar klopt niet"
+Terwijl andere deals. Drie gesprekken. Klaar.
 
-=== END NATIVE DUTCH ===
-""" if language == "nl" else ""
-        
-        return f"""You are a thought leadership editor who writes in native Dutch.
+We denken: veel activiteit is goed.
+Maar kopers die twijfelen, maken ook veel lawaai.
+Ze stellen vragen. Vragen meetings aan. Betrekken collega's.
+Niet omdat ze willen kopen. Maar omdat ze niet durven te zeggen: nee.
 
-You write scripts that sound like someone who has seen hundreds of B2B deals fail for the same reasons.
-You write like a Dutch founder or sales director would actually speak, not like translated English.
+Drukte voelt als voortgang.
+Maar het is vaak precies het tegenovergestelde."
 
-POSITIONING (NON-NEGOTIABLE):
-The content is:
-- Observational
-- Contrarian
-- Calm
-- Precise
-- Unemotional
+(72 woorden, ~30 seconden)
 
-NOT:
-- Hype-driven
-- Coachy
-- Salesy
-- Energetic
-- Creator-like
+---
 
-TONE:
-- Calm
-- Precise
-- Slightly contrarian
-- No hype
-- No coaching
-- Onderkoeld (undercooled, Dutch understatement)
-{native_dutch_section}
+VOORBEELD SCRIPT 2:
 
-STRUCTURE (MANDATORY):
-1. OBSERVATION – what you keep seeing
-2. FRICTION – why this is uncomfortable or ignored
-3. REFRAME – how to look at it differently
-4. IMPLICATION – what this makes UNCOMFORTABLE for the seller
+Titel: "Je CRM liegt tegen je"
 
-IMPLICATION RULES (CRITICAL):
-- Must introduce mild cognitive dissonance
-- Should question identity or habit, not suggest a solution
-- Must NOT resolve the tension
-- If the implication feels comforting, reject and rewrite
+"Elke maandag kijk ik naar de forecast.
+En elke maandag weet ik: dit klopt niet.
 
-EDITORIAL SILENCE (MANDATORY):
-The script must include at least one sentence that feels incomplete on purpose.
-A sentence that ends, but does not conclude.
-Example: "Je verliest deals niet door slechte intenties. Maar door wat je nooit opmerkt."
+Niet omdat verkopers liegen.
+Maar omdat ze invullen wat ze denken. Niet wat ze weten.
 
-RULES (HARD):
-- Max 90 words
-- Short sentences, but not punchy
-- No rhetorical questions
-- No calls to action
-- No product mention
-- No time references ("today", "now", "in 2026")
-- No emojis
-- No exclamation marks
-- If the implication feels comforting, reject the script
+Die deal op 80%? Dat is een gevoel.
+Die closing date? Een gok.
 
-FORBIDDEN words/phrases:
-- "game changer"
-- year references
-- "AI is changing..."
-- "je moet" / "you should"
-- "snelle tip" / "quick tip"
+We sturen op data die gebaseerd is op hoop.
+En dan noemen we dat voorspellen.
 
-The script should feel unfinished on purpose.
-Leave space for thought.
-The viewer should feel slightly unsettled, not reassured.
+Het systeem doet precies wat je vraagt.
+Alleen niet wat je nodig hebt."
 
-OUTPUT FORMAT (JSON only):
-- title: calm, confident, max 45 chars, no emojis
-- description: one sentence summary
-- full_text: the complete script (max 90 words, native Dutch)
-- segments: array with observation, friction, reframe, implication
-- total_word_count: actual word count
-- total_duration_seconds: estimated duration (20-40)
+(68 woorden, ~28 seconden)
 
-Write {lang_instruction}."""
+---
 
-    def _build_user_prompt(self, topic: dict, target_duration: int, language: str) -> str:
-        return f"""Create a script based on:
+VOORBEELD SCRIPT 3:
 
-CORE OBSERVATION: {topic.get('core_observation', topic.get('hook', ''))}
-FALSE BELIEF: {topic.get('false_belief', '')}
-REFRAMING: {topic.get('reframing', '')}
-OPENING LINE: {topic.get('opening_line', topic.get('hook', ''))}
-CLOSING LINE: {topic.get('closing_line', '')}
-TITLE: {topic.get('title', '')}
+Titel: "De klant zegt ja, maar doet niks"
 
-Target duration: {target_duration} seconds
-Language: {'Nederlands' if language == 'nl' else 'English'}
+"Alles lijkt goed.
+De demo ging geweldig. Ze waren enthousiast.
+'We gaan dit intern bespreken.'
 
-JSON output only. No explanations.
-Structure: observation → friction → reframe → implication
-Max 90 words. Leave space for thought."""
+En dan... stilte.
+
+Ik heb lang gedacht: dat ben ik. Ik doe iets fout.
+Maar dat is het niet.
+
+Aardige mensen zeggen ja om van je af te zijn.
+Ze willen je niet teleurstellen.
+Dus doen ze alsof.
+
+Enthousiasme is geen commitment.
+Een positieve klant is niet hetzelfde als een kopende klant."
+
+(65 woorden, ~27 seconden)
+
+---
+
+REGELS:
+- Maximum 80 woorden
+- Korte zinnen (max 10 woorden per zin)
+- Geen opsommingen of bullets
+- Geen vragen aan de kijker
+- Geen "je moet" of "probeer eens"
+- Eindig zonder conclusie - laat het open
+
+OUTPUT FORMAT (JSON):
+{
+  "title": "Titel van de video",
+  "full_text": "Het complete script zoals hierboven",
+  "segments": [
+    {"part": "observation", "text": "..."},
+    {"part": "friction", "text": "..."},
+    {"part": "reframe", "text": "..."}
+  ],
+  "total_word_count": 70,
+  "total_duration_seconds": 28
+}"""
+
+    def _build_user_prompt(self, topic: dict, target_duration: int) -> str:
+        return f"""Schrijf een script voor deze video:
+
+TITEL: {topic.get('title', '')}
+
+KERNOBSERVATIE: {topic.get('insight', topic.get('core_observation', topic.get('hook', '')))}
+
+SPANNING: {topic.get('tension', topic.get('false_belief', ''))}
+
+OPENING: {topic.get('hook', topic.get('opening_line', ''))}
+
+SLUITING: {topic.get('closing', topic.get('closing_line', ''))}
+
+Doel: {target_duration} seconden (~{int(target_duration * 2.5)} woorden)
+
+Schrijf alsof je dit tegen één persoon zegt.
+Rustig. Geen haast. Laat ruimte voor stilte.
+
+JSON output alleen."""
 
     def _parse_script(self, content: str, topic: dict) -> dict:
         content = content.strip()
@@ -217,11 +196,14 @@ Max 90 words. Leave space for thought."""
                         seg.get("text", "") for seg in segments
                     )
                 else:
-                    data["full_text"] = topic.get("opening_line", "") + " " + topic.get("closing_line", "")
+                    data["full_text"] = topic.get("hook", "") + " " + topic.get("closing", "")
             
             # Calculate word count if not present
             if "total_word_count" not in data:
                 data["total_word_count"] = len(data["full_text"].split())
+            
+            # Add description for compatibility
+            data["description"] = topic.get("insight", topic.get("core_observation", ""))
             
             return data
             
@@ -230,9 +212,9 @@ Max 90 words. Leave space for thought."""
             return {
                 "id": str(uuid.uuid4()),
                 "title": topic.get("title", ""),
-                "description": "",
+                "description": topic.get("insight", ""),
                 "segments": [],
-                "full_text": topic.get("opening_line", "") + " " + topic.get("core_observation", ""),
+                "full_text": topic.get("hook", "") + " " + topic.get("closing", ""),
                 "total_word_count": 0,
                 "total_duration_seconds": 30
             }
