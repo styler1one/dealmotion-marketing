@@ -79,6 +79,17 @@ CORE CONTENT PHILOSOPHY
 - Framing beats tactics
 - Clarity beats hype
 
+EDITORIAL SPINE (MANDATORY)
+Every topic must lean into ONE of these tensions:
+1. Activity vs Progress → favor Progress
+2. Visibility vs Control → favor Control
+3. Confidence vs Clarity → favor Clarity
+4. Process vs Reality → favor Reality
+5. Motion vs Movement → favor Movement
+
+The content must clearly favor one side.
+Neutrality is not allowed.
+
 EVERY TOPIC MUST:
 - Be based on a real-world sales pattern or failure mode
 - Contain one clear point of view
@@ -138,12 +149,13 @@ TOPIC TYPES (choose exactly one):
 
 OUTPUT FORMAT (JSON only):
 - content_type: one of [sales_illusion, execution_failure, signal_miss, system_flaw, decision_dynamics]
+- editorial_tension: which tension this leans into (activity_progress, visibility_control, confidence_clarity, process_reality, motion_movement)
 - core_observation: 1 sentence, declarative
 - false_belief: what most sellers think
 - reframing: what's actually true
 - title: calm, confident, max 45 chars, no emojis
 - opening_line: first sentence of the video, no hook language
-- closing_line: open loop, no CTA
+- closing_line: open loop, no CTA, must NOT resolve the tension
 - estimated_duration_seconds: 20-40
 
 Write {lang_instruction}."""

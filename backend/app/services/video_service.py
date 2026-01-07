@@ -236,6 +236,11 @@ STRICTLY AVOID:
 NO text overlays.
 NO watermarks.
 
+TEMPORAL ALIGNMENT (CRUCIAL):
+The visual should lag behind the spoken text.
+Never illustrate the sentence being spoken.
+The image should feel like the thought after the thought.
+
 The video should feel like a thought, not an ad.
 Visual representation of stalled progress and quiet realization."""
         

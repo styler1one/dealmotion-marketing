@@ -85,7 +85,18 @@ STRUCTURE (MANDATORY):
 1. OBSERVATION – what you keep seeing
 2. FRICTION – why this is uncomfortable or ignored
 3. REFRAME – how to look at it differently
-4. IMPLICATION – what this changes for sellers
+4. IMPLICATION – what this makes UNCOMFORTABLE for the seller
+
+IMPLICATION RULES (CRITICAL):
+- Must introduce mild cognitive dissonance
+- Should question identity or habit, not suggest a solution
+- Must NOT resolve the tension
+- If the implication feels comforting, reject and rewrite
+
+EDITORIAL SILENCE (MANDATORY):
+The script must include at least one sentence that feels incomplete on purpose.
+A sentence that ends, but does not conclude.
+Example: "Most sellers don't lose deals because of bad intent. They lose them because of what they never notice."
 
 RULES (HARD):
 - Max 90 words
@@ -96,6 +107,7 @@ RULES (HARD):
 - No time references ("today", "now", "in 2026")
 - No emojis
 - No exclamation marks
+- If the implication feels comforting, reject the script
 
 FORBIDDEN words/phrases:
 - "game changer"
@@ -106,6 +118,7 @@ FORBIDDEN words/phrases:
 
 The script should feel unfinished on purpose.
 Leave space for thought.
+The viewer should feel slightly unsettled, not reassured.
 
 OUTPUT FORMAT (JSON only):
 - title: calm, confident, max 45 chars, no emojis
