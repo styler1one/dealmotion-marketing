@@ -435,13 +435,16 @@ async def test_full_pipeline_fn(ctx: inngest.Context) -> dict:
     audio_url = audio_result.get("audio_url") if isinstance(audio_result, dict) else audio_result
     logger.info(f"🎤 Audio: {audio_url}")
     
-    # Step 4: Generate background video
-    video_result = await step.run(
-        "test-generate-video",
-        lambda: VideoService().generate_video(script=script, audio_url=audio_url)
+    # Step 4: Generate 4 background video clips for variety
+    logger.info("🎥 Generating 4 video clips (this takes ~10-15 min)...")
+    video_clips = await step.run(
+        "test-generate-video-clips",
+        lambda: VideoService().generate_multiple_clips(script=script, num_clips=4, audio_url=audio_url)
     )
-    background_url = video_result.get("video_url")
-    logger.info(f"🎥 Background: {background_url}")
+    
+    # Extract URLs from clips
+    background_urls = [clip.get("video_url") for clip in video_clips if clip.get("video_url")]
+    logger.info(f"🎥 Generated {len(background_urls)} clips: {background_urls}")
     
     # Step 5: Render final video
     # Note: Inngest step results may not support Python slicing, so extract list first
@@ -457,10 +460,10 @@ async def test_full_pipeline_fn(ctx: inngest.Context) -> dict:
     
     render_result = await step.run(
         "test-render-video",
-        lambda: RenderService().render_simple_short(
-            texts=texts,
+        lambda: RenderService().render_short(
+            script_segments=[{"text": t} for t in texts],
             audio_url=audio_url,
-            background_video_url=background_url,
+            background_video_urls=background_urls,  # 4 different clips!
         )
     )
     final_url = render_result.get("video_url")

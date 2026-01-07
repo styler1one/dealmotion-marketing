@@ -230,70 +230,95 @@ class VideoService:
     
     def _get_scene_variety(self) -> List[str]:
         """
-        Get varied scene prompts for different clips.
-        Each scene should be visually distinct but cohesive.
+        Get varied scene prompts - REAL B2B sales moments.
+        Each 2-second clip shows authentic sales work life.
         """
-        return [
-            # Scene 1: Urban movement
-            """Cinematic vertical video (9:16).
+        scenes = [
+            # Scene 1: Early morning / laptop glow
+            """Cinematic vertical video (9:16), 2 seconds.
             
-            Busy city street at golden hour, camera tracking alongside a person walking purposefully.
-            Shallow depth of field, background blurred. Modern architecture visible.
-            Professional, cinematic look. Natural movement, slight camera shake.
+            Dark room, early morning. Laptop screen illuminating person's face.
+            Checking emails, slight frown of concentration. Coffee mug nearby.
+            The quiet intensity of starting the day before others wake up.
             
-            Style: Modern, clean, professional. Warm but not oversaturated.
-            Camera: Smooth tracking shot, following subject.""",
+            Style: Moody, intimate, real. Blue screen light on face.
+            Camera: Close-up on face, slight handheld movement.""",
             
-            # Scene 2: Office environment
-            """Cinematic vertical video (9:16).
+            # Scene 2: CRM / Pipeline view
+            """Cinematic vertical video (9:16), 2 seconds.
             
-            Modern office interior, glass walls and clean lines.
-            Person walking through, seen from behind, movement through space.
-            Natural lighting from large windows. Minimal, professional aesthetic.
+            Close-up of hands scrolling through CRM or spreadsheet.
+            Many tasks, deals, numbers visible. Slight sigh or pause.
+            The reality of managing a pipeline.
             
-            Style: Contemporary, clean, tech-forward. Cool tones with warm highlights.
-            Camera: Steadicam following shot, smooth motion.""",
+            Style: Documentary, authentic. Screen glow, office lighting.
+            Camera: Over-shoulder or hands close-up.""",
             
-            # Scene 3: Contemplative moment
-            """Cinematic vertical video (9:16).
+            # Scene 3: Waiting for reply
+            """Cinematic vertical video (9:16), 2 seconds.
             
-            Person standing at large window, city skyline visible.
-            Slight movement - turning head, shifting weight. Thoughtful pose.
-            Beautiful natural light, silhouette effect possible.
+            Person glancing at phone on desk. Waiting. Checking again.
+            The anticipation of a reply that doesn't come.
+            Slight frustration, then acceptance.
             
-            Style: Dramatic, cinematic, introspective. Mixed cool and warm light.
-            Camera: Slow push in or subtle dolly movement.""",
+            Style: Intimate, relatable. Natural office light.
+            Camera: Medium shot, subtle focus shift.""",
             
-            # Scene 4: Coffee/meeting environment
-            """Cinematic vertical video (9:16).
+            # Scene 4: Before the call
+            """Cinematic vertical video (9:16), 2 seconds.
             
-            Modern café or meeting space. Person at table, possibly with laptop.
-            Natural movement - reaching for coffee, gesturing, typing.
-            Warm ambient lighting, bokeh background with other people.
+            Person adjusting headset, checking camera angle.
+            Quick glance at notes. Deep breath before clicking join.
+            The moment of preparation before a big meeting.
             
-            Style: Intimate, professional, relatable. Warm tones.
-            Camera: Medium shot, slight handheld movement for authenticity.""",
+            Style: Tense, focused. Ring light or window light.
+            Camera: Close on face and hands, slight movement.""",
             
-            # Scene 5: Walking with purpose
-            """Cinematic vertical video (9:16).
+            # Scene 5: End of day
+            """Cinematic vertical video (9:16), 2 seconds.
             
-            Low angle tracking shot of person walking, only legs and feet visible.
-            Modern flooring - concrete, wood, or polished surface.
-            Confident pace, professional shoes. Sense of purpose and movement.
+            Empty office, one person still at desk. Laptop glow.
+            Rubbing eyes, leaning back. The solitude of sales work.
+            Looking at tomorrow's calendar, then shutting laptop.
             
-            Style: Dynamic, modern, professional. Neutral tones.
-            Camera: Low tracking shot, smooth motion.""",
+            Style: Quiet, reflective. Evening office lighting.
+            Camera: Wide then close, slow movement.""",
             
-            # Scene 6: Technology interaction
-            """Cinematic vertical video (9:16).
+            # Scene 6: Small win moment
+            """Cinematic vertical video (9:16), 2 seconds.
             
-            Close-up of hands working on laptop or phone. Screen glow on face.
-            Modern device, clean desk setup. Subtle finger movements.
-            Professional environment suggested through lighting and props.
+            Reading an email, subtle smile forming.
+            Quick satisfied nod or small fist pump, alone at desk.
+            The private celebration of progress.
             
-            Style: Tech-forward, clean, professional. Blue/white light mix.
-            Camera: Close-up, slight movement, shallow depth of field.""",
+            Style: Warm, hopeful. Natural light.
+            Camera: Close on face, reaction shot.""",
+            
+            # Scene 7: Research mode
+            """Cinematic vertical video (9:16), 2 seconds.
+            
+            Multiple browser tabs open. LinkedIn, company website.
+            Taking notes while reading. Finding something useful.
+            The detective work of sales preparation.
+            
+            Style: Focused, intent. Screen light on face.
+            Camera: Over-shoulder, slight zoom on screen.""",
+            
+            # Scene 8: Coffee and thinking
+            """Cinematic vertical video (9:16), 2 seconds.
+            
+            Person holding coffee, staring into distance.
+            Not at screen. Just thinking. Processing a conversation.
+            The mental work that happens between calls.
+            
+            Style: Contemplative, honest. Warm café or office light.
+            Camera: Profile shot, shallow depth of field.""",
         ]
+        
+        # Shuffle to get variety each time
+        import random
+        random.shuffle(scenes)
+        return scenes
     
     def _build_video_prompt(self, script_text: str, style: str) -> str:
         """
