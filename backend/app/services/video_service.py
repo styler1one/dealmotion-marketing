@@ -306,42 +306,56 @@ class VideoService:
         - B2B professional but cinematic
         """
         
-        # Define shot sequences - each sequence has 4 quick shots
+        # Define shot sequences - REAL B2B sales moments that sellers recognize
         shot_sequences = [
-            # Sequence 1: Urban arrival
+            # Sequence 1: Early morning grind
             [
-                "Quick shot: Feet walking on wet city pavement, reflections, confident stride",
-                "Quick shot: Low angle looking up at glass skyscraper, camera tilts up",
-                "Quick shot: Hand pushing through revolving door, motion blur",
-                "Quick shot: Person in profile, walking through lobby, natural light streaming in"
+                "Quick shot: Dark room, laptop screen illuminating face, early morning, checking emails",
+                "Quick shot: Hand scrolling through CRM dashboard, many overdue tasks visible",
+                "Quick shot: Coffee mug being picked up, steam rising, tired but determined expression",
+                "Quick shot: Deep breath, hands on keyboard, ready to start the day"
             ],
-            # Sequence 2: Office energy
+            # Sequence 2: The waiting game
             [
-                "Quick shot: Hands typing on laptop keyboard, shallow depth of field",
-                "Quick shot: Coffee cup being set down on desk, slight splash",
-                "Quick shot: Person walking past glass wall, reflection visible",
-                "Quick shot: Close-up face in thought, slight head turn, window light"
+                "Quick shot: Phone on desk, person glancing at it, waiting for reply",
+                "Quick shot: Refreshing inbox, slight frustration, no new messages",
+                "Quick shot: Looking at LinkedIn, scrolling through prospect's profile",
+                "Quick shot: Leaning back in chair, thinking, hand on chin"
             ],
-            # Sequence 3: Meeting dynamics
+            # Sequence 3: Before the big call
             [
-                "Quick shot: Hand gesturing while talking, out of focus listener in background",
-                "Quick shot: Pen writing on paper, decisive strokes",
-                "Quick shot: Two people walking down corridor, shot from front",
-                "Quick shot: Person standing at window, city view, turns slightly"
+                "Quick shot: Notes spread on desk, reviewing key points",
+                "Quick shot: Adjusting headset, checking camera angle",
+                "Quick shot: Quick glance at mirror/screen, fixing hair",
+                "Quick shot: Deep breath, slight nod, clicking to join meeting"
             ],
-            # Sequence 4: Tech & movement
+            # Sequence 4: End of day reality
             [
-                "Quick shot: Phone screen lighting up face in dim room",
-                "Quick shot: Laptop closing, person standing up",
-                "Quick shot: Walking through busy open office, camera tracking",
-                "Quick shot: Elevator doors opening, person stepping in"
+                "Quick shot: Empty office, one person still at desk, laptop glow",
+                "Quick shot: Closing tabs, many browser windows",
+                "Quick shot: Looking at calendar, tomorrow packed with meetings",
+                "Quick shot: Rubbing eyes, slight smile, shutting laptop"
             ],
-            # Sequence 5: Street & transition
+            # Sequence 5: The small wins
             [
-                "Quick shot: Crossing street at crosswalk, camera low",
-                "Quick shot: Hailing taxi, arm raised",
-                "Quick shot: Sitting in back of car, cityscape passing window",
-                "Quick shot: Looking out window, contemplative, buildings reflected"
+                "Quick shot: Email notification pops up, eyes widen slightly",
+                "Quick shot: Reading screen, subtle smile forming",
+                "Quick shot: Quick fist pump or satisfied nod, alone at desk",
+                "Quick shot: Immediately typing response, energized"
+            ],
+            # Sequence 6: Pipeline pressure
+            [
+                "Quick shot: Spreadsheet with numbers, scrolling through deals",
+                "Quick shot: Hand moving sticky notes on kanban board",
+                "Quick shot: Checking watch, then back to screen",
+                "Quick shot: Standing up, stretching, then sitting back down focused"
+            ],
+            # Sequence 7: Research mode
+            [
+                "Quick shot: Multiple browser tabs open, researching company",
+                "Quick shot: Taking notes by hand while reading screen",
+                "Quick shot: Switching between LinkedIn and company website",
+                "Quick shot: Nodding while reading, found something useful"
             ],
         ]
         
@@ -349,46 +363,54 @@ class VideoService:
         sequence = random.choice(shot_sequences)
         shots_description = "\n".join([f"  {i+1}. {shot}" for i, shot in enumerate(sequence)])
         
-        prompt = f"""Create a DYNAMIC 8-second vertical video (9:16) with FAST CUTS like a music video or commercial.
+        prompt = f"""Create a CINEMATIC 8-second vertical video (9:16) showing REAL B2B SALES WORK LIFE.
 
-This video should feel like 4 QUICK SHOTS edited together, not one continuous take.
+This should feel AUTHENTIC and RELATABLE to sales professionals - moments they recognize from their daily work.
 
 SHOT SEQUENCE (each ~2 seconds):
 {shots_description}
 
-EDITING STYLE:
-- Fast cuts between shots (every ~2 seconds)
-- Each shot is distinct but cohesive in style
-- Creates rhythm and energy
-- Like a Nike commercial or movie trailer
+TONE:
+- Real, not staged
+- The quiet intensity of sales work
+- Relatable moments, not corporate propaganda
+- Honest portrayal of the grind
 
 VISUAL STYLE:
-- Cinematic, modern, premium feel
-- Shallow depth of field on key moments
-- Mix of movement types: tracking, static, handheld
-- Natural but stylized lighting
-- Muted colors with occasional warm highlights
+- Documentary feel, not commercial
+- Natural lighting (office lights, screen glow, window light)
+- Muted, realistic colors
+- Shallow depth of field for intimacy
+- Subtle camera movement, feels observational
 
-CAMERA MOVEMENT:
-- Varies per shot: some tracking, some static, some handheld
-- Creates visual interest through variety
-- Professional, not chaotic
+SETTING:
+- Real home office or modern workspace
+- Laptop, phone, coffee - the tools of the trade
+- Could be early morning or late evening
+- Slightly messy desk is more authentic than perfectly staged
 
 SUBJECT:
-- Professional 30-45 year old
-- Business casual or smart attire
-- Confident, purposeful energy
-- NOT posing or looking at camera
+- 30-45 year old professional
+- Casual or business casual (not suit and tie)
+- Focused, determined, sometimes tired
+- Real expressions, not corporate smiles
+- NEVER looks at camera
+
+THE FEELING:
+- "This is my life"
+- The solitude of sales work
+- Small moments of focus and determination
+- Authentic, not aspirational
 
 MUST AVOID:
-- Single static shot for entire duration
-- Cheesy stock footage feeling
-- Over-saturated or unnatural colors
-- Direct eye contact with camera
-- Anything that feels staged or fake
+- Corporate stock footage clichés
+- Fake enthusiasm or smiles
+- Staged handshakes or meetings
+- Perfect lighting setups
+- Looking directly at camera
+- Anything that feels like an ad
 
-This is for a professional B2B brand. Think Apple, Nike, or high-end tech company aesthetics.
-Total duration: 8 seconds with visible cuts/transitions between shots."""
+Duration: 8 seconds, documentary style with subtle cuts."""
         
         logger.info(f"Generated multi-shot Veo prompt for Shorts")
         return prompt.strip()
