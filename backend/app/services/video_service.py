@@ -297,82 +297,100 @@ class VideoService:
     
     def _build_video_prompt(self, script_text: str, style: str) -> str:
         """
-        Build a dynamic video prompt suitable for Shorts.
+        Build a dynamic multi-shot video prompt for Shorts.
         
         Key for Shorts:
-        - Movement and energy
-        - Professional but not sterile
-        - Visually interesting
-        - Matches B2B professional context
+        - MULTIPLE quick shots within 8 seconds (like cuts in a music video)
+        - Each shot ~2 seconds
+        - Visual variety and pacing
+        - B2B professional but cinematic
         """
         
-        # Dynamic scenes with movement
-        dynamic_scenes = [
-            # Urban/walking scenes
-            "Person walking confidently through modern city street, golden hour lighting, camera tracking alongside, shallow depth of field, professional attire",
-            "Busy financial district, person walking through crowd, camera following from behind, dynamic movement, modern architecture",
-            "Walking up steps of modern office building, camera low angle tracking upward, sense of purpose and momentum",
-            
-            # Office/work scenes
-            "Modern open office space, person walking between desks, natural daylight through large windows, slight camera movement",
-            "Glass meeting room, person standing at whiteboard gesturing, dynamic hand movements, professional environment",
-            "Person at standing desk, slight movements while working, modern workspace with plants and natural light",
-            
-            # Thinking/transition scenes
-            "Person at window looking out at city, slight turn of head, contemplative but energetic, natural lighting",
-            "Walking through modern lobby, revolving door, camera following smoothly, sense of arrival or departure",
-            "Coffee shop, person looking up from laptop, slight smile, warm ambient lighting, authentic moment",
-            
-            # Dynamic close-ups
-            "Hands typing on laptop, close-up, slight camera movement, professional environment visible in blur",
-            "Person checking phone while walking, natural movement, city background in motion blur",
-            "Face in profile, listening intently, slight nods, professional meeting context suggested",
+        # Define shot sequences - each sequence has 4 quick shots
+        shot_sequences = [
+            # Sequence 1: Urban arrival
+            [
+                "Quick shot: Feet walking on wet city pavement, reflections, confident stride",
+                "Quick shot: Low angle looking up at glass skyscraper, camera tilts up",
+                "Quick shot: Hand pushing through revolving door, motion blur",
+                "Quick shot: Person in profile, walking through lobby, natural light streaming in"
+            ],
+            # Sequence 2: Office energy
+            [
+                "Quick shot: Hands typing on laptop keyboard, shallow depth of field",
+                "Quick shot: Coffee cup being set down on desk, slight splash",
+                "Quick shot: Person walking past glass wall, reflection visible",
+                "Quick shot: Close-up face in thought, slight head turn, window light"
+            ],
+            # Sequence 3: Meeting dynamics
+            [
+                "Quick shot: Hand gesturing while talking, out of focus listener in background",
+                "Quick shot: Pen writing on paper, decisive strokes",
+                "Quick shot: Two people walking down corridor, shot from front",
+                "Quick shot: Person standing at window, city view, turns slightly"
+            ],
+            # Sequence 4: Tech & movement
+            [
+                "Quick shot: Phone screen lighting up face in dim room",
+                "Quick shot: Laptop closing, person standing up",
+                "Quick shot: Walking through busy open office, camera tracking",
+                "Quick shot: Elevator doors opening, person stepping in"
+            ],
+            # Sequence 5: Street & transition
+            [
+                "Quick shot: Crossing street at crosswalk, camera low",
+                "Quick shot: Hailing taxi, arm raised",
+                "Quick shot: Sitting in back of car, cityscape passing window",
+                "Quick shot: Looking out window, contemplative, buildings reflected"
+            ],
         ]
         
-        # Pick one scene
-        scene = random.choice(dynamic_scenes)
+        # Pick a random sequence
+        sequence = random.choice(shot_sequences)
+        shots_description = "\n".join([f"  {i+1}. {shot}" for i, shot in enumerate(sequence)])
         
-        prompt = f"""Cinematic vertical video for social media (9:16 aspect ratio).
+        prompt = f"""Create a DYNAMIC 8-second vertical video (9:16) with FAST CUTS like a music video or commercial.
 
-SCENE: {scene}
+This video should feel like 4 QUICK SHOTS edited together, not one continuous take.
 
-ESSENTIAL QUALITIES:
-- Professional and modern
-- Natural movement (not static)
-- Cinematic quality (not stock footage feel)
-- B2B/business context
-- Authentic, not staged-looking
+SHOT SEQUENCE (each ~2 seconds):
+{shots_description}
 
-CAMERA:
-- Smooth movement (tracking, dolly, or subtle handheld)
-- Modern cinematic look
-- Shallow depth of field where appropriate
-- Natural camera motion, not robotic
+EDITING STYLE:
+- Fast cuts between shots (every ~2 seconds)
+- Each shot is distinct but cohesive in style
+- Creates rhythm and energy
+- Like a Nike commercial or movie trailer
 
-LIGHTING:
-- Natural or natural-looking
-- Can be golden hour, daylight, or modern office lighting
-- Avoid harsh or flat lighting
-- Professional color grade
+VISUAL STYLE:
+- Cinematic, modern, premium feel
+- Shallow depth of field on key moments
+- Mix of movement types: tracking, static, handheld
+- Natural but stylized lighting
+- Muted colors with occasional warm highlights
 
-TALENT/SUBJECT:
-- Professional appearance
-- Confident, purposeful movement
-- Not cheesy or over-acted
-- Could be any gender, 30-50 age range appropriate
+CAMERA MOVEMENT:
+- Varies per shot: some tracking, some static, some handheld
+- Creates visual interest through variety
+- Professional, not chaotic
 
-AVOID:
-- Static locked-off shots
-- Cheap stock footage look
-- Over-saturated colors
-- Obvious green screen
-- Overly posed or staged feeling
-- Direct camera address
+SUBJECT:
+- Professional 30-45 year old
+- Business casual or smart attire
+- Confident, purposeful energy
+- NOT posing or looking at camera
 
-Duration: 8 seconds with movement throughout.
-Quality: 4K cinematic look, suitable for YouTube Shorts."""
+MUST AVOID:
+- Single static shot for entire duration
+- Cheesy stock footage feeling
+- Over-saturated or unnatural colors
+- Direct eye contact with camera
+- Anything that feels staged or fake
+
+This is for a professional B2B brand. Think Apple, Nike, or high-end tech company aesthetics.
+Total duration: 8 seconds with visible cuts/transitions between shots."""
         
-        logger.info(f"Generated dynamic Veo prompt for Shorts")
+        logger.info(f"Generated multi-shot Veo prompt for Shorts")
         return prompt.strip()
     
     def generate_video_with_audio(

@@ -32,6 +32,7 @@ class RenderService:
         script_segments: List[dict],
         audio_url: str,
         background_video_url: Optional[str] = None,
+        background_video_urls: Optional[List[str]] = None,
         music_url: Optional[str] = None,
     ) -> dict:
         """
@@ -40,7 +41,8 @@ class RenderService:
         Args:
             script_segments: List of text segments with timing
             audio_url: URL to the voice-over audio
-            background_video_url: URL to background video (from Veo)
+            background_video_url: URL to single background video (legacy, used for all scenes)
+            background_video_urls: List of video URLs (one per scene, for variety)
             music_url: Optional background music URL
             
         Returns:
@@ -59,6 +61,7 @@ class RenderService:
             script_segments=script_segments,
             audio_url=audio_url,
             background_video_url=background_video_url,
+            background_video_urls=background_video_urls,
             music_url=music_url,
         )
         
@@ -90,7 +93,8 @@ class RenderService:
         script_segments: List[dict],
         audio_url: str,
         background_video_url: Optional[str],
-        music_url: Optional[str],
+        background_video_urls: Optional[List[str]] = None,
+        music_url: Optional[str] = None,
     ) -> dict:
         """Build Creatomate modifications from script segments."""
         modifications = {}
@@ -101,11 +105,19 @@ class RenderService:
             modifications["Music.source"] = audio_url
             modifications["Music.volume"] = "100%"  # Full volume for voice-over
         
-        # Add background video if provided
-        if background_video_url:
-            # Apply same background to all scenes
+        # Add background videos
+        if background_video_urls and len(background_video_urls) > 0:
+            # Multiple clips - each scene gets its own video (variety!)
+            for i in range(1, 5):
+                # Use modulo to cycle through available clips if fewer than 4
+                clip_index = (i - 1) % len(background_video_urls)
+                modifications[f"Background-{i}.source"] = background_video_urls[clip_index]
+            logger.info(f"Using {len(background_video_urls)} different video clips for scenes")
+        elif background_video_url:
+            # Single video - apply to all scenes (legacy)
             for i in range(1, 5):
                 modifications[f"Background-{i}.source"] = background_video_url
+            logger.info("Using single video for all scenes")
         
         # Add text segments (animated captions)
         for i, segment in enumerate(script_segments[:4], start=1):
