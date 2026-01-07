@@ -1,7 +1,8 @@
 """
 Script Service - Generate video scripts using Claude.
 
-Approach: Persona-based prompting with concrete examples.
+Structure: Observatie → Frictie → Reframe
+Tone: Rustig, constaterend, geen advies.
 """
 import json
 import uuid
@@ -51,22 +52,25 @@ class ScriptService:
             raise
     
     def _build_system_prompt(self, language: str) -> str:
-        return """Je bent Martijn, 47 jaar. Je maakt korte video's over B2B sales.
+        return """Je schrijft scripts voor korte video's over B2B sales.
 
 Je praat rustig. Alsof je in een café zit met een collega.
 Geen presentatie. Geen pitch. Gewoon een gedachte delen.
 
-Je structuur is simpel:
-1. Wat je ziet (observatie)
-2. Waarom dat raar is (frictie)  
-3. Hoe je er anders naar kunt kijken (reframe)
+---
 
-Je eindigt nooit met een conclusie of advies.
-Je laat de gedachte hangen. De kijker moet zelf nadenken.
+STRUCTUUR:
+
+1. OBSERVATIE - Wat je ziet (herkenbaar, direct)
+2. FRICTIE - Waarom dat gek is of niet klopt
+3. REFRAME - Hoe je er anders naar kunt kijken
+
+Je eindigt NOOIT met een conclusie of advies.
+Je laat de gedachte hangen. De kijker denkt zelf verder.
 
 ---
 
-VOORBEELD SCRIPT 1:
+VOORBEELD SCRIPT:
 
 Titel: "Waarom de drukste deals vaak doodlopen"
 
@@ -89,29 +93,6 @@ Maar het is vaak precies het tegenovergestelde."
 ---
 
 VOORBEELD SCRIPT 2:
-
-Titel: "Je CRM liegt tegen je"
-
-"Elke maandag kijk ik naar de forecast.
-En elke maandag weet ik: dit klopt niet.
-
-Niet omdat verkopers liegen.
-Maar omdat ze invullen wat ze denken. Niet wat ze weten.
-
-Die deal op 80%? Dat is een gevoel.
-Die closing date? Een gok.
-
-We sturen op data die gebaseerd is op hoop.
-En dan noemen we dat voorspellen.
-
-Het systeem doet precies wat je vraagt.
-Alleen niet wat je nodig hebt."
-
-(68 woorden, ~28 seconden)
-
----
-
-VOORBEELD SCRIPT 3:
 
 Titel: "De klant zegt ja, maar doet niks"
 
@@ -136,17 +117,29 @@ Een positieve klant is niet hetzelfde als een kopende klant."
 ---
 
 REGELS:
+
 - Maximum 80 woorden
 - Korte zinnen (max 10 woorden per zin)
-- Geen opsommingen of bullets
+- Spreektaal, geen schrijftaal
 - Geen vragen aan de kijker
-- Geen "je moet" of "probeer eens"
-- Eindig zonder conclusie - laat het open
+- Geen "je moet" of tips
+- Geen opsommingen
+- Eindig open, niet met een conclusie
 
-OUTPUT FORMAT (JSON):
+VERBODEN:
+- "game changer"
+- jaarcijfers
+- "snelle tip"
+- emoji's
+- uitroeptekens
+
+---
+
+OUTPUT (JSON):
+
 {
   "title": "Titel van de video",
-  "full_text": "Het complete script zoals hierboven",
+  "full_text": "Het complete script",
   "segments": [
     {"part": "observation", "text": "..."},
     {"part": "friction", "text": "..."},
@@ -161,20 +154,22 @@ OUTPUT FORMAT (JSON):
 
 TITEL: {topic.get('title', '')}
 
-KERNOBSERVATIE: {topic.get('insight', topic.get('core_observation', topic.get('hook', '')))}
+OBSERVATIE: {topic.get('core_observation', topic.get('hook', ''))}
 
-SPANNING: {topic.get('tension', topic.get('false_belief', ''))}
+WAT VERKOPERS DENKEN: {topic.get('false_belief', '')}
 
-OPENING: {topic.get('hook', topic.get('opening_line', ''))}
+REFRAME: {topic.get('reframing', '')}
 
-SLUITING: {topic.get('closing', topic.get('closing_line', ''))}
+OPENING: {topic.get('opening_line', topic.get('hook', ''))}
+
+SLUITING: {topic.get('closing_line', '')}
 
 Doel: {target_duration} seconden (~{int(target_duration * 2.5)} woorden)
 
 Schrijf alsof je dit tegen één persoon zegt.
-Rustig. Geen haast. Laat ruimte voor stilte.
+Rustig. Geen haast.
 
-JSON output alleen."""
+JSON output."""
 
     def _parse_script(self, content: str, topic: dict) -> dict:
         content = content.strip()
@@ -196,14 +191,14 @@ JSON output alleen."""
                         seg.get("text", "") for seg in segments
                     )
                 else:
-                    data["full_text"] = topic.get("hook", "") + " " + topic.get("closing", "")
+                    data["full_text"] = topic.get("opening_line", topic.get("hook", ""))
             
-            # Calculate word count if not present
+            # Calculate word count
             if "total_word_count" not in data:
                 data["total_word_count"] = len(data["full_text"].split())
             
-            # Add description for compatibility
-            data["description"] = topic.get("insight", topic.get("core_observation", ""))
+            # Add description
+            data["description"] = topic.get("core_observation", "")
             
             return data
             
@@ -212,9 +207,9 @@ JSON output alleen."""
             return {
                 "id": str(uuid.uuid4()),
                 "title": topic.get("title", ""),
-                "description": topic.get("insight", ""),
+                "description": "",
                 "segments": [],
-                "full_text": topic.get("hook", "") + " " + topic.get("closing", ""),
+                "full_text": topic.get("opening_line", topic.get("hook", "")),
                 "total_word_count": 0,
                 "total_duration_seconds": 30
             }

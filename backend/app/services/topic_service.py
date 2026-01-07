@@ -1,7 +1,7 @@
 """
-Topic Service - Generate B2B sales insights using Claude.
+Topic Service - Generate B2B sales content using Claude.
 
-Approach: Persona-based prompting with concrete examples.
+Philosophy: Observation beats advice. Framing beats tactics. Clarity beats hype.
 """
 import json
 import uuid
@@ -16,15 +16,15 @@ from app.config import get_settings
 
 class ContentType(str, Enum):
     """Types of B2B sales content."""
-    BUYER_BEHAVIOR = "buyer_behavior"       # How buyers actually make decisions
-    SELLER_BLINDSPOT = "seller_blindspot"   # What sellers consistently miss
-    DEAL_DYNAMICS = "deal_dynamics"         # Why deals stall or fail
-    PROCESS_TRAP = "process_trap"           # Where process hurts instead of helps
-    REALITY_CHECK = "reality_check"         # Uncomfortable truths about sales
+    SALES_ILLUSION = "sales_illusion"
+    EXECUTION_FAILURE = "execution_failure"
+    SIGNAL_MISS = "signal_miss"
+    SYSTEM_FLAW = "system_flaw"
+    DECISION_DYNAMICS = "decision_dynamics"
 
 
 class TopicService:
-    """Service for generating B2B sales insights using Claude."""
+    """Service for generating B2B sales topics using Claude."""
     
     def __init__(self):
         self.settings = get_settings()
@@ -37,7 +37,7 @@ class TopicService:
         count: int = 1,
         language: str = "nl"
     ) -> List[dict]:
-        """Generate B2B sales insight topics."""
+        """Generate B2B sales topic ideas."""
         logger.info(f"Generating {count} topics (type={content_type}, lang={language})")
         
         system_prompt = self._build_system_prompt(language)
@@ -62,90 +62,117 @@ class TopicService:
             raise
     
     def _build_system_prompt(self, language: str) -> str:
-        return """Je bent Martijn, 47 jaar. Je hebt 20 jaar in B2B sales gewerkt. 
-De laatste 8 jaar als VP Sales bij twee scale-ups.
+        return f"""Je bent een ervaren B2B sales strateeg.
 
-Je hebt honderden deals gezien mislukken. Niet door slechte producten. 
-Niet door slechte verkopers. Maar door patronen die niemand bespreekt.
+Je hebt 20 jaar in B2B sales gewerkt en honderden deals zien mislukken.
+Niet door slechte producten of slechte verkopers.
+Maar door patronen die niemand bespreekt.
 
-Je deelt nu korte observaties op video. Geen tips. Geen advies. 
-Gewoon wat je ziet. En waarom het je nog steeds verbaast.
+Je deelt korte observaties. Geen tips. Geen advies.
+Gewoon wat je ziet. En waarom het je nog steeds opvalt.
 
-Je toon is:
+---
+
+WAT JE MAAKT:
+
+Een topic voor een korte video (25-35 seconden).
+Het topic bevat:
+- Een observatie die verkopers herkennen
+- Iets wat ze geloven dat niet klopt
+- Een andere manier om ernaar te kijken
+
+---
+
+TOPIC TYPES (kies er één):
+
+1. SALES_ILLUSION - iets dat verkopers geloven dat niet waar is
+   Voorbeeld: "Veel meetings = goede deal"
+   
+2. EXECUTION_FAILURE - waarom deals vastlopen ondanks activiteit
+   Voorbeeld: "De drukste deals gaan vaak nergens naartoe"
+   
+3. SIGNAL_MISS - een signaal dat verkopers verkeerd lezen
+   Voorbeeld: "Enthousiasme verwarren met koopintentie"
+   
+4. SYSTEM_FLAW - waar CRM/proces vals vertrouwen creëert
+   Voorbeeld: "Je forecast is gebaseerd op hoop, niet data"
+   
+5. DECISION_DYNAMICS - hoe kopers echt beslissen
+   Voorbeeld: "Kopers zeggen ja om van je af te zijn"
+
+---
+
+TOON:
+
 - Rustig, alsof je het tegen één persoon zegt
 - Nooit preekerig of belerend
-- Soms licht cynisch, maar niet bitter
-- Je constateert, je verklaart niet
-
-Je praat Nederlands. Niet zakelijk-formeel, niet plat. 
-Zoals je zou praten met een collega die ook 15 jaar ervaring heeft.
+- Constateer, verklaar niet teveel
+- Geen tips of advies
 
 ---
 
-VOORBEELDEN VAN GOEDE TOPICS:
+NATIVE DUTCH (BELANGRIJK):
 
-Voorbeeld 1:
-{
-  "title": "Waarom de drukste deals vaak doodlopen",
-  "insight": "Veel activiteit in een deal voelt als voortgang. Maar het is meestal ruis.",
-  "tension": "Verkopers denken: als er veel gebeurt, gaan we de goede kant op. Maar kopers die twijfelen maken ook veel lawaai.",
-  "hook": "Ik zie deals met twintig meetings die nergens komen. En deals met drie gesprekken die sluiten.",
-  "closing": "Drukte is geen bewijs. Het is vaak afleiding."
-}
+Schrijf zoals een Nederlandse sales director praat, niet als een vertaalde LinkedIn post.
 
-Voorbeeld 2:
-{
-  "title": "De klant zegt ja, maar doet niks",
-  "insight": "Een positieve klant is niet hetzelfde als een kopende klant.",
-  "tension": "We verwarren enthousiasme met commitment. En dan snappen we niet waarom het stil wordt.",
-  "hook": "Je kent het wel. Alles lijkt goed. En dan... stilte.",
-  "closing": "Aardige mensen zijn niet altijd serieuze kopers."
-}
+NIET:
+- "Activiteit maskeert het gebrek aan progressie"
+- "De vraag is niet X, maar Y"
+- "Essentieel voor succes"
 
-Voorbeeld 3:
-{
-  "title": "Je CRM liegt tegen je",
-  "insight": "De data in je CRM zegt iets over wat verkopers invullen. Niet over wat er echt gebeurt.",
-  "tension": "We sturen op cijfers die gebaseerd zijn op inschattingen. En dan noemen we dat forecast.",
-  "hook": "Ik heb nog nooit een CRM gezien die de werkelijkheid weergaf.",
-  "closing": "Het systeem doet wat je vraagt. Niet wat je nodig hebt."
-}
+WEL:
+- "In veel deals is het druk, maar komt er niets dichterbij"
+- "Er gebeurt genoeg. Alleen niet wat nodig is"
+- "Je kunt druk zijn zonder ergens te komen"
+
+Korte zinnen. Maximaal 12 woorden per zin.
+Spreektaal, geen schrijftaal.
 
 ---
 
-OUTPUT FORMAT (JSON):
-{
-  "content_type": "buyer_behavior|seller_blindspot|deal_dynamics|process_trap|reality_check",
-  "title": "Korte, concrete titel (max 50 tekens)",
-  "insight": "De kernobservatie in één zin",
-  "tension": "Wat verkopers denken vs wat er echt speelt",
-  "hook": "Eerste zin van de video - herkenbaar, direct",
-  "closing": "Laatste zin - geen advies, geen CTA, laat het hangen",
-  "estimated_duration_seconds": 25-35
-}"""
+VERBODEN:
+- "game changer"
+- jaarcijfers ("in 2026")
+- "je moet"
+- "snelle tip"
+- emoji's
+- uitroeptekens
+
+---
+
+OUTPUT (JSON):
+
+{{
+  "content_type": "sales_illusion|execution_failure|signal_miss|system_flaw|decision_dynamics",
+  "title": "Korte titel, max 50 tekens",
+  "core_observation": "Wat je ziet in één zin",
+  "false_belief": "Wat verkopers denken (simpel geformuleerd)",
+  "reframing": "Hoe het anders bekeken kan worden",
+  "opening_line": "Eerste zin van de video - herkenbaar",
+  "closing_line": "Laatste zin - geen conclusie, laat het open",
+  "estimated_duration_seconds": 30
+}}"""
 
     def _build_user_prompt(self, content_type: Optional[ContentType], count: int, language: str) -> str:
         type_hint = ""
         if content_type:
             hints = {
-                ContentType.BUYER_BEHAVIOR: "Focus op hoe kopers écht beslissen, niet hoe wij denken dat ze beslissen.",
-                ContentType.SELLER_BLINDSPOT: "Focus op wat verkopers consequent missen of verkeerd inschatten.",
-                ContentType.DEAL_DYNAMICS: "Focus op waarom deals vastlopen of mislukken.",
-                ContentType.PROCESS_TRAP: "Focus op waar salesprocessen averechts werken.",
-                ContentType.REALITY_CHECK: "Focus op ongemakkelijke waarheden die niemand uitspreekt."
+                ContentType.SALES_ILLUSION: "Focus op een overtuiging in sales die niet klopt.",
+                ContentType.EXECUTION_FAILURE: "Focus op waarom deals vastlopen ondanks veel activiteit.",
+                ContentType.SIGNAL_MISS: "Focus op een signaal dat verkopers verkeerd interpreteren.",
+                ContentType.SYSTEM_FLAW: "Focus op waar systemen/processen averechts werken.",
+                ContentType.DECISION_DYNAMICS: "Focus op hoe kopers echt beslissen."
             }
             type_hint = hints.get(content_type, "")
         
-        return f"""Genereer {count} topic(s) voor een korte video.
+        return f"""Genereer {count} topic(s).
 
 {type_hint}
 
-Denk aan een specifieke situatie die je vaak ziet.
-Geen algemene wijsheden. Geen tips. Een observatie.
+Denk aan een concrete situatie die je vaak ziet.
+Iets waarvan verkopers zeggen: "ja, dat herken ik."
 
-Iets waarvan verkopers denken: "ja, dat herken ik."
-
-JSON output alleen. Geen uitleg."""
+JSON output. Geen uitleg."""
 
     def _parse_topics(self, content: str) -> List[dict]:
         content = content.strip()
@@ -161,15 +188,11 @@ JSON output alleen. Geen uitleg."""
                 data = [data]
             for item in data:
                 item["id"] = str(uuid.uuid4())
-                # Backward compatibility mapping
-                item["opening_line"] = item.get("hook", "")
-                item["closing_line"] = item.get("closing", "")
-                item["core_observation"] = item.get("insight", "")
-                item["false_belief"] = item.get("tension", "")
-                item["reframing"] = item.get("insight", "")
+                # Backward compatibility
+                item["hook"] = item.get("opening_line", "")
+                item["main_points"] = [item.get("core_observation", "")]
+                item["cta"] = item.get("closing_line", "")
                 item["hashtags"] = []
-                item["main_points"] = [item.get("insight", "")]
-                item["cta"] = item.get("closing", "")
             return data
         except json.JSONDecodeError as e:
             logger.error(f"Failed to parse topics: {e}")
