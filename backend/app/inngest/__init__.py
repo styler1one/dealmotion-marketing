@@ -1,17 +1,10 @@
 # Inngest functions for automated content generation
+# ALL FUNCTIONS CURRENTLY PAUSED - No token usage
 from .client import inngest_client
-from .functions import (
-    daily_content_pipeline,
-    generate_video_fn,
-    upload_to_youtube_fn,
-    test_full_pipeline_fn,
-)
+
+# Functions are paused - decorators commented out in functions.py
+# To re-enable: uncomment @inngest_client.create_function decorators
 
 __all__ = [
     "inngest_client",
-    "daily_content_pipeline",
-    "generate_video_fn", 
-    "upload_to_youtube_fn",
-    "test_full_pipeline_fn",
 ]
-

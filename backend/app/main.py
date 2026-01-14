@@ -2,6 +2,9 @@
 DealMotion Marketing Engine - FastAPI Backend
 
 Cloud-based automated content generation for YouTube.
+
+NOTE: All Inngest functions are currently PAUSED to save tokens.
+To re-enable: uncomment @inngest_client.create_function decorators in functions.py
 """
 import os
 from contextlib import asynccontextmanager
@@ -14,12 +17,14 @@ from inngest.fast_api import serve
 from app.config import get_settings
 from app.routers import topics, scripts, videos, youtube, tts, render, pipeline, dashboard
 from app.inngest.client import inngest_client
-from app.inngest.functions import (
-    daily_content_pipeline,
-    generate_video_fn,
-    upload_to_youtube_fn,
-    test_full_pipeline_fn,
-)
+
+# ALL FUNCTIONS PAUSED - No imports needed
+# from app.inngest.functions import (
+#     daily_content_pipeline,
+#     generate_video_fn,
+#     upload_to_youtube_fn,
+#     test_full_pipeline_fn,
+# )
 
 
 @asynccontextmanager
@@ -27,6 +32,7 @@ async def lifespan(app: FastAPI):
     """Application lifespan handler."""
     # Startup
     print("🎬 DealMotion Marketing Engine starting...")
+    print("⚠️  INNGEST FUNCTIONS PAUSED - No automatic content generation")
     yield
     # Shutdown
     print("👋 Shutting down...")
@@ -64,16 +70,11 @@ app.include_router(render.router, prefix="/api/render", tags=["Render"])
 app.include_router(pipeline.router, prefix="/api/pipeline", tags=["Pipeline"])
 app.include_router(dashboard.router, prefix="/api/dashboard", tags=["Dashboard"])
 
-# Inngest endpoint
+# Inngest endpoint - NO FUNCTIONS REGISTERED (all paused)
 serve(
     app,
     inngest_client,
-    [
-        daily_content_pipeline,
-        generate_video_fn,
-        upload_to_youtube_fn,
-        test_full_pipeline_fn,
-    ],
+    [],  # Empty list = no functions = no token usage
 )
 
 
@@ -83,7 +84,8 @@ async def root():
     return {
         "status": "ok",
         "service": "DealMotion Marketing Engine",
-        "version": "0.1.0"
+        "version": "0.1.0",
+        "inngest_status": "PAUSED - No functions registered"
     }
 
 
@@ -92,6 +94,6 @@ async def health():
     """Detailed health check."""
     return {
         "status": "healthy",
-        "inngest": "connected",
+        "inngest": "PAUSED",
         "database": "connected"
     }

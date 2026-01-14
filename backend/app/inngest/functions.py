@@ -28,14 +28,14 @@ from app.services.database_service import DatabaseService
 
 
 # =============================================================================
-# Daily Content Pipeline - Runs every day at 10:00 AM
+# Daily Content Pipeline - PAUSED (uncomment trigger to enable)
 # =============================================================================
-@inngest_client.create_function(
-    fn_id="daily-content-pipeline",
-    trigger=inngest.TriggerCron(cron="0 10 * * *"),  # 10:00 AM daily
-    retries=2,
-)
-async def daily_content_pipeline(ctx: inngest.Context) -> dict:
+# @inngest_client.create_function(
+#     fn_id="daily-content-pipeline",
+#     trigger=inngest.TriggerCron(cron="0 10 * * *"),  # 10:00 AM daily
+#     retries=2,
+# )
+async def daily_content_pipeline_PAUSED(ctx: inngest.Context) -> dict:
     """
     Daily automated content generation pipeline.
     
@@ -153,14 +153,14 @@ async def daily_content_pipeline(ctx: inngest.Context) -> dict:
 
 
 # =============================================================================
-# Generate Video - Full video creation workflow
+# Generate Video - PAUSED (uncomment to enable)
 # =============================================================================
-@inngest_client.create_function(
-    fn_id="generate-video",
-    trigger=inngest.TriggerEvent(event="marketing/video.generate"),
-    retries=2,
-)
-async def generate_video_fn(ctx: inngest.Context) -> dict:
+# @inngest_client.create_function(
+#     fn_id="generate-video",
+#     trigger=inngest.TriggerEvent(event="marketing/video.generate"),
+#     retries=2,
+# )
+async def generate_video_fn_PAUSED(ctx: inngest.Context) -> dict:
     """
     Complete video generation pipeline:
     
@@ -287,14 +287,14 @@ async def generate_video_fn(ctx: inngest.Context) -> dict:
 
 
 # =============================================================================
-# Upload to YouTube
+# Upload to YouTube - PAUSED (uncomment to enable)
 # =============================================================================
-@inngest_client.create_function(
-    fn_id="upload-youtube",
-    trigger=inngest.TriggerEvent(event="marketing/youtube.upload"),
-    retries=2,
-)
-async def upload_to_youtube_fn(ctx: inngest.Context) -> dict:
+# @inngest_client.create_function(
+#     fn_id="upload-youtube",
+#     trigger=inngest.TriggerEvent(event="marketing/youtube.upload"),
+#     retries=2,
+# )
+async def upload_to_youtube_fn_PAUSED(ctx: inngest.Context) -> dict:
     """Upload a video to YouTube and save to database."""
     step = ctx.step
     data = ctx.event.data
@@ -349,14 +349,14 @@ async def upload_to_youtube_fn(ctx: inngest.Context) -> dict:
 
 
 # =============================================================================
-# Manual Full Pipeline Test - For testing the complete flow
+# Manual Full Pipeline Test - PAUSED (uncomment to enable)
 # =============================================================================
-@inngest_client.create_function(
-    fn_id="test-full-pipeline",
-    trigger=inngest.TriggerEvent(event="marketing/test.full-pipeline"),
-    retries=0,
-)
-async def test_full_pipeline_fn(ctx: inngest.Context) -> dict:
+# @inngest_client.create_function(
+#     fn_id="test-full-pipeline",
+#     trigger=inngest.TriggerEvent(event="marketing/test.full-pipeline"),
+#     retries=0,
+# )
+async def test_full_pipeline_fn_PAUSED(ctx: inngest.Context) -> dict:
     """
     Test the complete pipeline with a sample topic.
     Saves all results to database for dashboard visibility.
